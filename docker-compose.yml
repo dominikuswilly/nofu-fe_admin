@@ -1,0 +1,17 @@
+services:
+  app:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VUE_APP_BACKEND_URL: https://apinofudev.bengkelfajarjaya.com/api
+        VUE_APP_CUSTOMER_API_URL: https://apinofudev.bengkelfajarjaya.com/api/customer
+        VUE_APP_PRODUCT_API_URL: https://apinofudev.bengkelfajarjaya.com/api/product
+        VUE_APP_TRANSACTION_API_URL: https://apinofudev.bengkelfajarjaya.com/api/transaction
+        NODE_ENV: production
+    container_name: merchant-admin-fe
+    image: app.netbird.cloud:8081/fe-admin/stable:1.0.0
+    ports:
+      - "5173:5173"
+    restart: always
