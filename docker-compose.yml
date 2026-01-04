@@ -13,5 +13,5 @@ services:
     container_name: merchant-admin-fe
     image: app.netbird.cloud:8081/fe-admin/stable:1.0.0
     ports:
-      - "5173:5173"
+      - "80:80"
     restart: always
