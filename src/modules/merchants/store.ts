@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { Merchant } from '../../core/types';
 import { API_CONFIG } from '../../core/api/config';
+import { SHA512 } from 'crypto-js';
 
 export const useMerchantStore = defineStore('merchants', () => {
   const merchants = ref<Merchant[]>([]);
@@ -31,13 +32,17 @@ export const useMerchantStore = defineStore('merchants', () => {
   const addMerchant = async (merchant: Omit<Merchant, 'id'>) => {
     try {
       const token = localStorage.getItem('token');
+      const hashedPassword = SHA512('nofurider').toString();
       const response = await fetch(`${API_CONFIG.customerApi}/merchants`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(merchant)
+        body: JSON.stringify({
+          ...merchant,
+          password: hashedPassword
+        })
       });
 
       const result = await response.json();
