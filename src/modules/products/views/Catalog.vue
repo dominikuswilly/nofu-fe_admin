@@ -20,7 +20,7 @@
         <div v-for="product in stockStore.products" :key="product.id" class="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between hover:border-green-200 transition-colors">
           <div class="flex items-center space-x-4">
             <div class="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center overflow-hidden border border-slate-50">
-              <img v-if="product.url" :src="product.url" class="w-full h-full object-cover">
+              <img v-if="product.url" :src="product.url" @error="(e) => (e.target as HTMLImageElement).style.display = 'none'" class="w-full h-full object-cover">
               <PhotoIcon v-else class="w-6 h-6 text-slate-300" />
             </div>
             <div>
