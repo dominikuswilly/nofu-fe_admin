@@ -40,20 +40,20 @@
                 <MenuItem v-slot="{ active }">
                   <router-link to="/products" :class="[active ? 'bg-green-50 text-green-700' : 'text-slate-700', 'group flex w-full items-center rounded-lg px-2 py-2 text-sm']">
                     <ShoppingBagIcon class="mr-2 h-5 w-5" :class="active ? 'text-green-600' : 'text-slate-400'" />
-                    Produk
+                    Kelola Produk
                   </router-link>
                 </MenuItem>
                 <MenuItem v-slot="{ active }">
-                  <button :class="[active ? 'bg-green-50 text-green-700' : 'text-slate-700', 'group flex w-full items-center rounded-lg px-2 py-2 text-sm']">
+                  <router-link to="/admins" :class="[active ? 'bg-green-50 text-green-700' : 'text-slate-700', 'group flex w-full items-center rounded-lg px-2 py-2 text-sm']">
                     <UserPlusIcon class="mr-2 h-5 w-5" :class="active ? 'text-green-600' : 'text-slate-400'" />
-                    Admin Baru
-                  </button>
+                    Kelola Admin
+                  </router-link>
                 </MenuItem>
                 <MenuItem v-slot="{ active }">
-                  <button :class="[active ? 'bg-green-50 text-green-700' : 'text-slate-700', 'group flex w-full items-center rounded-lg px-2 py-2 text-sm']">
+                  <router-link to="/merchants" :class="[active ? 'bg-green-50 text-green-700' : 'text-slate-700', 'group flex w-full items-center rounded-lg px-2 py-2 text-sm']">
                     <BuildingStorefrontIcon class="mr-2 h-5 w-5" :class="active ? 'text-green-600' : 'text-slate-400'" />
-                    Merchant Baru
-                  </button>
+                    Kelola Merchant
+                  </router-link>
                 </MenuItem>
               </div>
               <div class="px-1 py-1">

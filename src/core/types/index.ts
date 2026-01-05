@@ -3,6 +3,10 @@ export type MerchantStatus = 'ON' | 'OFF';
 export interface Merchant {
   id: number;
   name: string;
+  phone: string;
+  email: string;
+  username: string;
+  active: boolean;
   status: MerchantStatus;
   stock: number;
   cash: number;
