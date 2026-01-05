@@ -193,6 +193,7 @@ const handleSubmit = async () => {
     if (isEditing.value && editingId.value !== null) {
       await merchantStore.updateMerchant({ ...form, id: editingId.value } as Merchant);
     } else {
+      // password will be included automatically by the store (default: "nofurider")
       await merchantStore.addMerchant({ ...form } as Merchant);
     }
     closeModal();
