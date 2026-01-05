@@ -38,6 +38,26 @@
             <MenuItems class="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-slate-100 rounded-xl bg-white shadow-lg ring-1 ring-black/5 focus:outline-none overflow-hidden">
               <div class="px-1 py-1">
                 <MenuItem v-slot="{ active }">
+                  <router-link to="/products" :class="[active ? 'bg-green-50 text-green-700' : 'text-slate-700', 'group flex w-full items-center rounded-lg px-2 py-2 text-sm']">
+                    <ShoppingBagIcon class="mr-2 h-5 w-5" :class="active ? 'text-green-600' : 'text-slate-400'" />
+                    Produk
+                  </router-link>
+                </MenuItem>
+                <MenuItem v-slot="{ active }">
+                  <button :class="[active ? 'bg-green-50 text-green-700' : 'text-slate-700', 'group flex w-full items-center rounded-lg px-2 py-2 text-sm']">
+                    <UserPlusIcon class="mr-2 h-5 w-5" :class="active ? 'text-green-600' : 'text-slate-400'" />
+                    Admin Baru
+                  </button>
+                </MenuItem>
+                <MenuItem v-slot="{ active }">
+                  <button :class="[active ? 'bg-green-50 text-green-700' : 'text-slate-700', 'group flex w-full items-center rounded-lg px-2 py-2 text-sm']">
+                    <BuildingStorefrontIcon class="mr-2 h-5 w-5" :class="active ? 'text-green-600' : 'text-slate-400'" />
+                    Merchant Baru
+                  </button>
+                </MenuItem>
+              </div>
+              <div class="px-1 py-1">
+                <MenuItem v-slot="{ active }">
                   <button :class="[active ? 'bg-green-50 text-green-700' : 'text-slate-700', 'group flex w-full items-center rounded-lg px-2 py-2 text-sm']">
                     <UserCircleIcon class="mr-2 h-5 w-5" :class="active ? 'text-green-600' : 'text-slate-400'" />
                     Profil
@@ -86,7 +106,10 @@ import {
   MagnifyingGlassIcon,
   UserCircleIcon,
   Cog6ToothIcon,
-  ArrowLeftOnRectangleIcon
+  ArrowLeftOnRectangleIcon,
+  ShoppingBagIcon,
+  UserPlusIcon,
+  BuildingStorefrontIcon
 } from '@heroicons/vue/24/outline';
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue';
 import NotificationDropdown from './NotificationDropdown.vue';
