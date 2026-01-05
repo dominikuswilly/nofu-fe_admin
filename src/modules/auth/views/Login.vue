@@ -114,10 +114,22 @@ const handleLogin = async () => {
   try {
     const hashedPassword = SHA512(password.value).toString();
     
-    await httpClient.post(`${API_CONFIG.customerApi}/admins/login`, {
+    const response = await httpClient.post<any>(`${API_CONFIG.customerApi}/admins/login`, {
       username: username.value,
       password: hashedPassword
     });
+
+    if (response) {
+      // Assuming the API returns the token directly or in a data property
+      // Adjust based on actual API response structure. 
+      // Common patterns: response.token, response.data.token, or the response itself is the token if string.
+      // Based on typical JWT implementations in this project context (implied):
+      const token = response.token || response.data?.token; 
+      
+      if (token) {
+         localStorage.setItem('token', token);
+      }
+    }
 
     router.push('/dashboard');
   } catch (error: any) {
