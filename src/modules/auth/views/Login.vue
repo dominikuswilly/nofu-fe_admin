@@ -68,14 +68,14 @@
               <div class="w-full border-t border-slate-100"></div>
             </div>
             <div class="relative flex justify-center text-sm">
-              <span class="px-2 bg-white text-slate-400 font-medium italic">v1.2.0 - Stabil</span>
+              <span class="px-2 bg-white text-slate-400 font-medium italic">v1.0.0 - Dev</span>
             </div>
           </div>
         </div>
       </div>
       
       <p class="mt-8 text-center text-xs text-slate-400">
-        &copy; 2026 PT. Bengkel Fajar Jaya. <br>
+        &copy; PT. Bengkel Fajar Jaya. <br>
         Semua Hak Dilindungi.
       </p>
     </div>
