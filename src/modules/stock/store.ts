@@ -24,7 +24,7 @@ export const useStockStore = defineStore('stocks', () => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_CONFIG.productApi}/products`, {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
