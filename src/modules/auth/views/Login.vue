@@ -97,6 +97,7 @@ import { useRouter } from 'vue-router';
 import { BuildingStorefrontIcon, UserIcon, LockClosedIcon, ExclamationCircleIcon } from '@heroicons/vue/24/outline';
 import SHA512 from 'crypto-js/sha512';
 import { httpClient } from '../../../core/api/httpClient';
+import { API_CONFIG } from '../../../core/api/config';
 
 const router = useRouter();
 const username = ref('');
@@ -113,7 +114,7 @@ const handleLogin = async () => {
   try {
     const hashedPassword = SHA512(password.value).toString();
     
-    await httpClient.post('/api/customer/admins/login', {
+    await httpClient.post(`${API_CONFIG.customerApi}/admins/login`, {
       username: username.value,
       password: hashedPassword
     });
