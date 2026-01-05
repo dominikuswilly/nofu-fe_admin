@@ -9,7 +9,7 @@
       
       <div class="flex items-center space-x-4">
         <!-- Notification Bell -->
-        <div class="relative group">
+        <div class="relative group z-10">
           <button @click="showNotifications = !showNotifications" class="p-2 rounded-full hover:bg-slate-100 transition-colors relative">
             <BellIcon class="w-6 h-6 text-slate-600" />
             <span v-if="notificationCount > 0" class="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] flex items-center justify-center rounded-full border-2 border-white">
@@ -21,7 +21,7 @@
         </div>
 
         <!-- Hamburger button -->
-        <Menu as="div" class="relative inline-block text-left">
+        <Menu as="div" class="relative inline-block text-left z-10">
           <div>
             <MenuButton class="p-2 rounded-full hover:bg-slate-100 transition-colors">
               <Bars3Icon class="w-6 h-6 text-slate-600" />
