@@ -58,14 +58,33 @@ export const useStockStore = defineStore('stocks', () => {
     }
   };
 
-  const addProduct = (product: Omit<Product, 'id'>) => {
-    // Note: This needs backend integration, temporary local add for UI testing if needed, 
-    // but ideally we should post to backend. For now, pushing locally with a fake UUID-like string or handling accordingly.
-    // Since ID is now string, we can't do Math.max.
-    // We'll leave it simple for now or commented out if not required by current task, 
-    // but existing UI uses it.
-    const newId = crypto.randomUUID();
-    products.value.push({ ...product, id: newId });
+  const addProduct = async (product: Omit<Product, 'id'>) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_CONFIG.productApi}/products`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(product)
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.responseCode === "201") {
+        if (result.data) {
+          products.value.unshift(result.data); // Add to top of list
+        } else {
+          await fetchProducts();
+        }
+      } else {
+        throw new Error(result.responseMessage || 'Gagal menambahkan produk');
+      }
+    } catch (error: any) {
+      console.error('Failed to add product:', error);
+      throw error;
+    }
   };
 
   const updateProduct = (updatedProduct: Product) => {
