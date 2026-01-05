@@ -170,13 +170,17 @@ const closeModal = () => {
   isModalOpen.value = false;
 };
 
-const handleSubmit = () => {
-  if (isEditing.value && editingId.value !== null) {
-    stockStore.updateProduct({ ...form, id: editingId.value });
-  } else {
-    stockStore.addProduct({ ...form });
+const handleSubmit = async () => {
+  try {
+    if (isEditing.value && editingId.value !== null) {
+      await stockStore.updateProduct({ ...form, id: editingId.value } as Product);
+    } else {
+      await stockStore.addProduct({ ...form } as Product);
+    }
+    closeModal();
+  } catch (error: any) {
+    alert(error.message || 'Terjadi kesalahan');
   }
-  closeModal();
 };
 </script>
 

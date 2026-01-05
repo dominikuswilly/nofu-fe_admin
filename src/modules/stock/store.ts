@@ -87,10 +87,28 @@ export const useStockStore = defineStore('stocks', () => {
     }
   };
 
-  const updateProduct = (updatedProduct: Product) => {
-    const index = products.value.findIndex(p => p.id === updatedProduct.id);
-    if (index !== -1) {
-      products.value[index] = updatedProduct;
+  const updateProduct = async (updatedProduct: Product) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_CONFIG.productApi}/products/${updatedProduct.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedProduct)
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.responseCode === "200") {
+        await fetchProducts();
+      } else {
+        throw new Error(result.responseMessage || 'Gagal memperbarui produk');
+      }
+    } catch (error: any) {
+      console.error('Failed to update product:', error);
+      throw error;
     }
   };
 
