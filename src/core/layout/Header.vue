@@ -94,8 +94,8 @@
         placeholder="Cari merchant..."
         class="block w-full pl-10 pr-3 py-2 bg-slate-50 border-none rounded-xl text-sm placeholder-slate-400 focus:ring-2 focus:ring-green-500 transition-all shadow-inner"
       />
-    </div>
-  </header> -->
+    </div> -->
+  </header>
 </template>
 
 <script setup lang="ts">
