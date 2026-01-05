@@ -117,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue'; // Added onMounted
 import { 
   ArchiveBoxIcon, 
   PlusIcon, 
@@ -132,10 +132,15 @@ import type { Product } from '../../../core/types';
 
 const stockStore = useStockStore();
 
+// Fetch products on mount
+onMounted(() => {
+  stockStore.fetchProducts();
+});
+
 // Modal State
 const isModalOpen = ref(false);
 const isEditing = ref(false);
-const editingId = ref<number | null>(null);
+const editingId = ref<string | null>(null); // Changed to string
 
 const initialForm = {
   name: '',

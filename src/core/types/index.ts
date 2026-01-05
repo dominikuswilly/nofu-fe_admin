@@ -36,11 +36,14 @@ export interface Notification {
 }
 
 export interface Product {
-  id: number;
+  id: string; // Changed from number to string (UUID)
   name: string;
   description: string;
   price: number;
   currency: string;
   stock: number;
   url: string;
+  created_at?: string;
+  updated_at?: string;
+  created_by?: string;
 }

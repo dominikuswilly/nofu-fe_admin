@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { RestockRequest, DashboardOverview, Product } from '../../core/types';
+import { API_CONFIG } from '../../core/api/config';
 
 export const useStockStore = defineStore('stocks', () => {
   const requests = ref<RestockRequest[]>([
@@ -9,10 +10,7 @@ export const useStockStore = defineStore('stocks', () => {
     { id: 3, merchantId: 7, merchantName: 'Gani Kelontong', qty: 30, status: 'approved', timestamp: '2026-01-03T16:45:00Z' },
   ]);
 
-  const products = ref<Product[]>([
-    { id: 1, name: 'Extra Joss', description: 'Minuman energi bubuk', price: 1000, currency: 'IDR', stock: 500, url: 'https://images.tokopedia.net/img/cache/700/Vqb7pG/2021/6/15/8e44e27f-9f7e-4b7d-8d4e-6e8e0c8b6a3c.jpg' },
-    { id: 2, name: 'Kuku Bima', description: 'Minuman energi rasa anggur', price: 1000, currency: 'IDR', stock: 450, url: 'https://images.tokopedia.net/img/cache/700/Vqb7pG/2022/3/24/7a4a2a1a-3e5f-4d6a-9b4e-8f5c3b2e1a1a.jpg' },
-  ]);
+  const products = ref<Product[]>([]);
 
   const overview = ref<DashboardOverview>({
     totalMerchants: 8,
@@ -21,6 +19,29 @@ export const useStockStore = defineStore('stocks', () => {
     todaySales: 25000000,
     restockRequests: requests.value.filter(r => r.status === 'pending'),
   });
+
+  const fetchProducts = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_CONFIG.productApi}/products`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.responseCode === "200" && Array.isArray(result.data)) {
+          products.value = result.data;
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+    }
+  };
 
   const approveRequest = (id: number) => {
     const req = requests.value.find(r => r.id === id);
@@ -39,7 +60,12 @@ export const useStockStore = defineStore('stocks', () => {
   };
 
   const addProduct = (product: Omit<Product, 'id'>) => {
-    const newId = products.value.length > 0 ? Math.max(...products.value.map(p => p.id)) + 1 : 1;
+    // Note: This needs backend integration, temporary local add for UI testing if needed, 
+    // but ideally we should post to backend. For now, pushing locally with a fake UUID-like string or handling accordingly.
+    // Since ID is now string, we can't do Math.max.
+    // We'll leave it simple for now or commented out if not required by current task, 
+    // but existing UI uses it.
+    const newId = crypto.randomUUID();
     products.value.push({ ...product, id: newId });
   };
 
@@ -54,6 +80,7 @@ export const useStockStore = defineStore('stocks', () => {
     requests,
     products,
     overview,
+    fetchProducts,
     approveRequest,
     rejectRequest,
     addProduct,
