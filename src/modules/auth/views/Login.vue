@@ -95,7 +95,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { BuildingStorefrontIcon, UserIcon, LockClosedIcon, ExclamationCircleIcon } from '@heroicons/vue/24/outline';
-import SHA512 from 'crypto-js/sha512';
+import { SHA512 } from 'crypto-js';
 import { httpClient } from '../../../core/api/httpClient';
 import { API_CONFIG } from '../../../core/api/config';
 
