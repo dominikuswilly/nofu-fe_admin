@@ -1,5 +1,7 @@
+const BASE_URL = import.meta.env.DEV ? '/api' : 'https://apinofudev.bengkelfajarjaya.com/api';
+
 export const API_CONFIG = {
-    customerApi: 'https://apinofudev.bengkelfajarjaya.com/api/customer',
-    transactionApi: 'https://apinofudev.bengkelfajarjaya.com/api/transaction', // Placeholder based on pattern
-    productApi: 'https://apinofudev.bengkelfajarjaya.com/api/product',         // Placeholder based on pattern
+    customerApi: `${BASE_URL}/customer`,
+    transactionApi: `${BASE_URL}/transaction`,
+    productApi: `${BASE_URL}/product`,
 };

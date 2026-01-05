@@ -9,4 +9,13 @@ export default defineConfig({
     tailwindcss(),
   ],
   base: '/',
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://apinofudev.bengkelfajarjaya.com',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
+  }
 })
