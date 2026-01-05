@@ -34,3 +34,13 @@ export interface Notification {
   type: 'info' | 'warning' | 'error';
   timestamp: string;
 }
+
+export interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  currency: string;
+  stock: number;
+  url: string;
+}
