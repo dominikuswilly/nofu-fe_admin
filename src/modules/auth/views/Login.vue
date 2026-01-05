@@ -11,6 +11,10 @@
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-md">
       <div class="bg-white py-10 px-8 shadow-2xl shadow-slate-200/50 rounded-3xl border border-slate-100">
         <form class="space-y-6" @submit.prevent="handleLogin">
+          <div v-if="errorMessage" class="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-2xl text-sm font-bold flex items-center shadow-sm">
+            <ExclamationCircleIcon class="w-5 h-5 mr-2 flex-shrink-0" />
+            {{ errorMessage }}
+          </div>
           <div>
             <label for="username" class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Username</label>
             <div class="relative">
@@ -55,9 +59,14 @@
           <div>
             <button 
               type="submit" 
-              class="w-full flex justify-center py-4 px-4 border border-transparent rounded-2xl shadow-xl shadow-green-100 text-sm font-black text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all active:scale-95"
+              :disabled="isLoading"
+              class="w-full flex justify-center py-4 px-4 border border-transparent rounded-2xl shadow-xl shadow-green-100 text-sm font-black text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
             >
-              MASUK KE DASHBOARD
+              <svg v-if="isLoading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ isLoading ? 'MEMPROSES...' : 'MASUK KE DASHBOARD' }}
             </button>
           </div>
         </form>
@@ -85,16 +94,35 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { BuildingStorefrontIcon, UserIcon, LockClosedIcon } from '@heroicons/vue/24/outline';
+import { BuildingStorefrontIcon, UserIcon, LockClosedIcon, ExclamationCircleIcon } from '@heroicons/vue/24/outline';
+import SHA512 from 'crypto-js/sha512';
+import { httpClient } from '../../../core/api/httpClient';
 
 const router = useRouter();
 const username = ref('');
 const password = ref('');
+const isLoading = ref(false);
+const errorMessage = ref('');
 
-const handleLogin = () => {
-  // Mock login process
-  console.log('Logging in as:', username.value);
-  // Simulate successful login
-  router.push('/dashboard');
+const handleLogin = async () => {
+  if (!username.value || !password.value) return;
+  
+  isLoading.value = true;
+  errorMessage.value = '';
+
+  try {
+    const hashedPassword = SHA512(password.value).toString();
+    
+    await httpClient.post('/api/customer/admins/login', {
+      username: username.value,
+      password: hashedPassword
+    });
+
+    router.push('/dashboard');
+  } catch (error: any) {
+    errorMessage.value = error.message || 'Gagal masuk. Periksa kembali username dan password Anda.';
+  } finally {
+    isLoading.value = false;
+  }
 };
 </script>
