@@ -106,7 +106,7 @@ import {
   Bars3Icon, 
   // MagnifyingGlassIcon,
   UserCircleIcon,
-  Cog6ToothIcon,
+  // Cog6ToothIcon,
   ArrowLeftOnRectangleIcon,
   ShoppingBagIcon,
   UserPlusIcon,
