@@ -24,7 +24,11 @@
               <PhotoIcon v-else class="w-6 h-6 text-slate-300" />
             </div>
             <div>
-              <h4 class="text-sm font-bold text-slate-800">{{ product.name }}</h4>
+              <div class="flex items-center space-x-2">
+                <h4 class="text-sm font-bold text-slate-800">{{ product.name }}</h4>
+                <span v-if="!product.active" class="text-[8px] font-black bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded-full uppercase tracking-tighter">Nonaktif</span>
+                <span v-else class="text-[8px] font-black bg-green-50 text-green-500 px-1.5 py-0.5 rounded-full uppercase tracking-tighter">Aktif</span>
+              </div>
               <p class="text-[11px] text-slate-500 line-clamp-1 max-w-[150px]">{{ product.description }}</p>
               <div class="flex items-center space-x-2 mt-1">
                 <span class="text-[10px] font-black text-green-600 bg-green-50 px-1.5 py-0.5 rounded-md">{{ product.currency }} {{ product.price.toLocaleString() }}</span>
@@ -101,8 +105,24 @@
                   <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <PhotoIcon class="w-4 h-4 text-slate-400" />
                   </div>
-                  <input v-model="form.url" type="url" class="w-full pl-10 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-green-500 transition-all text-slate-900" placeholder="https://...">
+                <input v-model="form.url" type="url" class="w-full pl-10 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-green-500 transition-all text-slate-900" placeholder="https://...">
                 </div>
+              </div>
+
+              <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                <div class="flex items-center space-x-3">
+                  <div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-sm">
+                    <component :is="form.active ? CheckCircleIcon : XCircleIcon" :class="['w-5 h-5', form.active ? 'text-green-500' : 'text-slate-300']" />
+                  </div>
+                  <div>
+                    <p class="text-[10px] font-black text-slate-900 uppercase tracking-widest leading-none">Status Produk</p>
+                    <p class="text-[10px] font-bold text-slate-400 mt-0.5">{{ form.active ? 'Produk akan muncul di katalog' : 'Produk akan disembunyikan' }}</p>
+                  </div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" v-model="form.active" class="sr-only peer">
+                  <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                </label>
               </div>
 
               <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg shadow-green-100 transition-all active:scale-[0.98] mt-4">
@@ -125,7 +145,9 @@ import {
   XMarkIcon, 
   PhotoIcon, 
   CurrencyDollarIcon,
-  ShoppingBagIcon
+  ShoppingBagIcon,
+  CheckCircleIcon,
+  XCircleIcon
 } from '@heroicons/vue/24/outline';
 import { useStockStore } from '../../stock/store'; // Adjusted path
 import type { Product } from '../../../core/types';
@@ -148,7 +170,8 @@ const initialForm = {
   price: 0,
   currency: 'IDR',
   stock: 0,
-  url: ''
+  url: '',
+  active: true
 };
 
 const form = reactive({ ...initialForm });

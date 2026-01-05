@@ -43,6 +43,7 @@ export interface Product {
   currency: string;
   stock: number;
   url: string;
+  active: boolean;
   created_at?: string;
   updated_at?: string;
   created_by?: string;
