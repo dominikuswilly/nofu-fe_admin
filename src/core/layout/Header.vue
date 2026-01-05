@@ -1,5 +1,5 @@
 <template>
-  <header class="fixed top-0 left-0 right-0 h-24 z-50 bg-white shadow-sm px-4 flex flex-col justify-center">
+  <header class="fixed top-0 left-0 right-0 h-12 z-50 bg-white shadow-sm px-4 flex flex-col justify-center">
     <!-- Top row -->
     <div class="flex items-center justify-between mb-2">
       <div class="flex items-center space-x-2">
