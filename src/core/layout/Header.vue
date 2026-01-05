@@ -44,15 +44,15 @@
                   </router-link>
                 </MenuItem>
                 <MenuItem v-slot="{ active }">
-                  <router-link to="/admins" :class="[active ? 'bg-green-50 text-green-700' : 'text-slate-700', 'group flex w-full items-center rounded-lg px-2 py-2 text-sm']">
-                    <UserPlusIcon class="mr-2 h-5 w-5" :class="active ? 'text-green-600' : 'text-slate-400'" />
-                    Kelola Admin
-                  </router-link>
-                </MenuItem>
-                <MenuItem v-slot="{ active }">
                   <router-link to="/merchants" :class="[active ? 'bg-green-50 text-green-700' : 'text-slate-700', 'group flex w-full items-center rounded-lg px-2 py-2 text-sm']">
                     <BuildingStorefrontIcon class="mr-2 h-5 w-5" :class="active ? 'text-green-600' : 'text-slate-400'" />
                     Kelola Merchant
+                  </router-link>
+                </MenuItem>
+                <MenuItem v-slot="{ active }">
+                  <router-link to="/admins" :class="[active ? 'bg-green-50 text-green-700' : 'text-slate-700', 'group flex w-full items-center rounded-lg px-2 py-2 text-sm']">
+                    <UserPlusIcon class="mr-2 h-5 w-5" :class="active ? 'text-green-600' : 'text-slate-400'" />
+                    Kelola Admin
                   </router-link>
                 </MenuItem>
               </div>
@@ -63,16 +63,16 @@
                     Profil
                   </button>
                 </MenuItem>
-                <MenuItem v-slot="{ active }">
+                <!-- <MenuItem v-slot="{ active }">
                   <button :class="[active ? 'bg-green-50 text-green-700' : 'text-slate-700', 'group flex w-full items-center rounded-lg px-2 py-2 text-sm']">
                     <Cog6ToothIcon class="mr-2 h-5 w-5" :class="active ? 'text-green-600' : 'text-slate-400'" />
                     Pengaturan (WIB)
                   </button>
-                </MenuItem>
+                </MenuItem> -->
               </div>
               <div class="px-1 py-1">
                 <MenuItem v-slot="{ active }">
-                  <button :class="[active ? 'bg-red-50 text-red-700' : 'text-slate-700', 'group flex w-full items-center rounded-lg px-2 py-2 text-sm']">
+                  <button @click="handleLogout" :class="[active ? 'bg-red-50 text-red-700' : 'text-slate-700', 'group flex w-full items-center rounded-lg px-2 py-2 text-sm']">
                     <ArrowLeftOnRectangleIcon class="mr-2 h-5 w-5" :class="active ? 'text-red-600' : 'text-slate-400'" />
                     Keluar
                   </button>
@@ -100,6 +100,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { 
   BellIcon, 
   Bars3Icon, 
@@ -116,6 +117,13 @@ import NotificationDropdown from './NotificationDropdown.vue';
 import { useUIStore } from '../stores/ui';
 
 const uiStore = useUIStore();
+const router = useRouter();
 const showNotifications = ref(false);
 const notificationCount = computed(() => uiStore.notifications.length);
+
+const handleLogout = () => {
+  localStorage.clear();
+  sessionStorage.clear();
+  router.push('/login');
+};
 </script>
