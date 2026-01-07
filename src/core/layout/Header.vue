@@ -2,10 +2,10 @@
   <header class="fixed top-0 left-0 right-0 h-12 z-50 bg-white shadow-sm px-4 flex flex-col justify-center">
     <!-- Top row -->
     <div class="flex items-center justify-between mb-2">
-      <div class="flex items-center space-x-2">
+      <router-link to="/dashboard" class="flex items-center space-x-2 hover:opacity-80 transition-opacity">
         <span class="font-bold text-xl text-green-600">MerchantStock</span>
         <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Admin</span>
-      </div>
+      </router-link>
       
       <div class="flex items-center space-x-4">
         <!-- Notification Bell -->
