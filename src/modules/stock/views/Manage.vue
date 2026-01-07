@@ -121,6 +121,7 @@
             </div>
 
             <button 
+              @click="startInitiation"
               class="w-full py-4 rounded-2xl font-black text-sm transition-all flex items-center justify-center space-x-2 shadow-lg active:scale-95"
               :class="isPagiDone ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-blue-600 text-white shadow-blue-200 hover:bg-blue-700'"
             >
@@ -276,11 +277,80 @@
          </button>
        </div>
     </div>
+
+    <!-- Initiation Modal -->
+    <Teleport to="body">
+      <Transition name="modal-fade">
+        <div v-if="isInitiationModalOpen" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <!-- Backdrop -->
+          <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="isInitiationModalOpen = false"></div>
+          
+          <!-- Content -->
+          <div class="relative w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] shadow-2xl overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b border-slate-50 flex items-center justify-between flex-shrink-0">
+              <div>
+                <h3 class="text-xl font-black text-slate-900">Inisiasi Stok</h3>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ selectedMerchant?.name }}</p>
+              </div>
+              <button @click="isInitiationModalOpen = false" class="p-2 bg-slate-50 rounded-full text-slate-400 hover:text-slate-600 transition-colors">
+                <XMarkIcon class="w-6 h-6" />
+              </button>
+            </div>
+
+            <!-- Product List Area -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
+              <div v-if="stockStore.products.length === 0" class="py-12 text-center">
+                 <div class="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <QueueListIcon class="w-6 h-6 text-slate-300" />
+                 </div>
+                 <p class="text-sm font-bold text-slate-400">Memuat katalog...</p>
+              </div>
+              <div v-else v-for="product in stockStore.products" :key="product.id" class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-transparent hover:border-blue-100 transition-all">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center overflow-hidden border border-slate-100">
+                    <img v-if="product.url" :src="product.url" class="w-full h-full object-cover">
+                    <ShoppingBagIcon v-else class="w-4 h-4 text-slate-300" />
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-black text-slate-900">{{ product.name }}</h4>
+                    <p class="text-[10px] font-bold text-slate-400">Tersedia: {{ product.stock }}</p>
+                  </div>
+                </div>
+                <div class="w-24">
+                  <div class="relative">
+                    <input 
+                      v-model.number="initiationData[product.id]" 
+                      type="number" 
+                      min="0"
+                      class="w-full bg-white border-none rounded-xl px-3 py-2 text-xs font-black text-right focus:ring-2 focus:ring-blue-500 shadow-sm"
+                      placeholder="0"
+                    >
+                    <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-slate-300 uppercase">Qty</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer Action -->
+            <div class="p-6 border-t border-slate-50 bg-slate-50/50 flex-shrink-0">
+              <button 
+                @click="submitInitiation"
+                :disabled="isSubmitting"
+                class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg shadow-blue-100 transition-all active:scale-[0.98] flex items-center justify-center space-x-2"
+              >
+                <span v-if="isSubmitting" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                <span>{{ isSubmitting ? 'Memproses...' : 'Simpan Inisiasi' }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, reactive } from 'vue';
 import { 
   CheckIcon,
   CheckCircleIcon,
@@ -288,12 +358,21 @@ import {
   MoonIcon,
   ExclamationTriangleIcon,
   QueueListIcon,
-  FaceFrownIcon
+  FaceFrownIcon,
+  XMarkIcon,
+  ShoppingBagIcon
 } from '@heroicons/vue/24/solid';
 import { useMerchantStore } from '../../merchants/store';
+import { useStockStore } from '../store';
 
 const merchantStore = useMerchantStore();
+const stockStore = useStockStore();
 const selectedMerchantId = ref<number | null>(null);
+
+// Initiation State
+const isInitiationModalOpen = ref(false);
+const isSubmitting = ref(false);
+const initiationData = reactive<Record<string, number>>({});
 
 // Initialize data
 merchantStore.fetchMerchants();
@@ -303,11 +382,11 @@ const selectedMerchant = computed(() => {
 });
 
 // Mock States based on merchantId (In real app, this would be in a store or fetched per merchant)
-const mockMerchantStates: Record<number, { isPagiDone: boolean, isMalamDone: boolean }> = {
+const mockMerchantStates = reactive<Record<number, { isPagiDone: boolean, isMalamDone: boolean }>>({
   1: { isPagiDone: true, isMalamDone: false },
   2: { isPagiDone: false, isMalamDone: false },
   3: { isPagiDone: true, isMalamDone: true },
-};
+});
 
 const isPagiDone = computed(() => selectedMerchantId.value ? mockMerchantStates[selectedMerchantId.value]?.isPagiDone : false);
 const isMalamDone = computed(() => selectedMerchantId.value ? mockMerchantStates[selectedMerchantId.value]?.isMalamDone : false);
@@ -317,6 +396,45 @@ const selectMerchant = (id: number) => {
     selectedMerchantId.value = null;
   } else {
     selectedMerchantId.value = id;
+  }
+};
+
+const startInitiation = async () => {
+  if (isPagiDone.value) return;
+  
+  // Reset data
+  Object.keys(initiationData).forEach(key => delete initiationData[key]);
+  
+  isInitiationModalOpen.value = true;
+  await stockStore.fetchProducts();
+};
+
+const submitInitiation = async () => {
+  if (!selectedMerchantId.value) return;
+  
+  // Simple validation
+  const hasData = Object.values(initiationData).some(qty => qty > 0);
+  if (!hasData) {
+    alert('Mohon masukkan jumlah stok minimal untuk satu produk.');
+    return;
+  }
+
+  isSubmitting.value = true;
+  
+  try {
+    // Mock API call delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Update mock state
+    mockMerchantStates[selectedMerchantId.value] = {
+      isPagiDone: true,
+      isMalamDone: false
+    };
+    
+    isInitiationModalOpen.value = false;
+    // Notify or handle success
+  } finally {
+    isSubmitting.value = false;
   }
 };
 
