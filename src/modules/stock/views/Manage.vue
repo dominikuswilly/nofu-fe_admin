@@ -409,6 +409,21 @@ const startInitiation = async () => {
   await stockStore.fetchProducts();
 };
 
+const parseJwt = (token: string) => {
+  try {
+    const segments = token.split('.');
+    if (segments.length !== 3) return null;
+    const base64Url = segments[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+};
+
 const submitInitiation = async () => {
   if (!selectedMerchantId.value) return;
   
@@ -422,8 +437,26 @@ const submitInitiation = async () => {
   isSubmitting.value = true;
   
   try {
-    // Mock API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    const token = localStorage.getItem('token');
+    const claims = token ? parseJwt(token) : null;
+    const userId = claims?.sub || 'unknown';
+
+    const stockDetails = stockStore.products
+      .filter(p => (initiationData[p.id] || 0) > 0)
+      .map(p => ({
+        productId: p.id,
+        price: p.price,
+        qty: initiationData[p.id],
+        currency: p.currency
+      }));
+
+    const payload = {
+      userId: userId,
+      merchantId: selectedMerchantId.value.toString(),
+      stockDetails: stockDetails
+    };
+
+    await stockStore.createStockInitiation(payload);
     
     // Update mock state
     mockMerchantStates[selectedMerchantId.value] = {
@@ -432,7 +465,9 @@ const submitInitiation = async () => {
     };
     
     isInitiationModalOpen.value = false;
-    // Notify or handle success
+    alert('Berhasil menyimpan inisiasi stok.');
+  } catch (error: any) {
+    alert(error.message || 'Gagal menyimpan inisiasi stok.');
   } finally {
     isSubmitting.value = false;
   }

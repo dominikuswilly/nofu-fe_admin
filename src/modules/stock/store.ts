@@ -112,6 +112,31 @@ export const useStockStore = defineStore('stocks', () => {
     }
   };
 
+  const createStockInitiation = async (payload: any) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_CONFIG.transactionApi}/stock/create`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || (result.responseCode !== "201" && result.responseCode !== "200")) {
+        throw new Error(result.responseMessage || 'Gagal membuat inisiasi stok');
+      }
+
+      return result;
+    } catch (error: any) {
+      console.error('Failed to create stock initiation:', error);
+      throw error;
+    }
+  };
+
   return {
     requests,
     products,
@@ -120,6 +145,7 @@ export const useStockStore = defineStore('stocks', () => {
     approveRequest,
     rejectRequest,
     addProduct,
-    updateProduct
+    updateProduct,
+    createStockInitiation
   };
 });
