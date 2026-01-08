@@ -1,7 +1,7 @@
 export type MerchantStatus = 'ON' | 'OFF';
 
 export interface Merchant {
-  id: number;
+  id: string | number;
   name: string;
   phone: string;
   email: string;
@@ -12,6 +12,7 @@ export interface Merchant {
   cash: number;
   offDays: number;
   position: string;
+  stocks?: any[]; // For raw data from API if needed
 }
 
 export interface RestockRequest {

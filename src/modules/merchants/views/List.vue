@@ -147,7 +147,7 @@ onMounted(() => {
 const searchQuery = ref('');
 const isModalOpen = ref(false);
 const isEditing = ref(false);
-const editingId = ref<number | null>(null);
+const editingId = ref<string | number | null>(null);
 
 const initialForm = {
   name: '',

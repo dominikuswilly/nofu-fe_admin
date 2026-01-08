@@ -10,7 +10,8 @@ export const useMerchantStore = defineStore('merchants', () => {
   const fetchMerchants = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_CONFIG.customerApi}/merchants`, {
+      // Updated to use the new merchants-stock endpoint
+      const response = await fetch(`${API_CONFIG.customerApi}/frontend/merchants-stock`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -21,7 +22,16 @@ export const useMerchantStore = defineStore('merchants', () => {
       if (response.ok) {
         const result = await response.json();
         if (result.responseCode === "200" && Array.isArray(result.data)) {
-          merchants.value = result.data;
+          // Process data to set active status based on stocks
+          merchants.value = result.data.map((m: any) => ({
+            ...m,
+            // If stocks.length > 0, set active to true. 
+            // If stocks.length < 0 (not really possible, but per instruction), 
+            // or if it's 0, we can keep the current condition or default to what the API says.
+            // "if stocks.length > 0 , then set the merchant card active."
+            // "if stocks.length < 0, keep the current condition."
+            active: m.stocks && m.stocks.length > 0 ? true : (m.active ?? false)
+          }));
         }
       }
     } catch (error) {
@@ -81,7 +91,7 @@ export const useMerchantStore = defineStore('merchants', () => {
     }
   };
 
-  const toggleStatus = async (id: number) => {
+  const toggleStatus = async (id: string | number) => {
     const merchant = merchants.value.find(m => m.id === id);
     if (merchant) {
       const newActiveStatus = !merchant.active;
@@ -93,7 +103,7 @@ export const useMerchantStore = defineStore('merchants', () => {
     }
   };
 
-  const getMerchantById = (id: number) => merchants.value.find(m => m.id === id);
+  const getMerchantById = (id: string | number) => merchants.value.find(m => m.id === id);
 
   return {
     merchants,

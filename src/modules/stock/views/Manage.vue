@@ -368,7 +368,7 @@ import { parseJwt } from '../../../core/utils/auth';
 
 const merchantStore = useMerchantStore();
 const stockStore = useStockStore();
-const selectedMerchantId = ref<number | null>(null);
+const selectedMerchantId = ref<string | number | null>(null);
 
 // Initiation State
 const isInitiationModalOpen = ref(false);
@@ -383,7 +383,7 @@ const selectedMerchant = computed(() => {
 });
 
 // Mock States based on merchantId (In real app, this would be in a store or fetched per merchant)
-const mockMerchantStates = reactive<Record<number, { isPagiDone: boolean, isMalamDone: boolean }>>({
+const mockMerchantStates = reactive<Record<string | number, { isPagiDone: boolean, isMalamDone: boolean }>>({
   1: { isPagiDone: true, isMalamDone: false },
   2: { isPagiDone: false, isMalamDone: false },
   3: { isPagiDone: true, isMalamDone: true },
@@ -392,7 +392,7 @@ const mockMerchantStates = reactive<Record<number, { isPagiDone: boolean, isMala
 const isPagiDone = computed(() => selectedMerchantId.value ? mockMerchantStates[selectedMerchantId.value]?.isPagiDone : false);
 const isMalamDone = computed(() => selectedMerchantId.value ? mockMerchantStates[selectedMerchantId.value]?.isMalamDone : false);
 
-const selectMerchant = (id: number) => {
+const selectMerchant = (id: string | number) => {
   if (selectedMerchantId.value === id) {
     selectedMerchantId.value = null;
   } else {
@@ -464,7 +464,7 @@ const getInitials = (name: string) => {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
 };
 
-const getStatusLabel = (id: number) => {
+const getStatusLabel = (id: string | number) => {
   const state = mockMerchantStates[id];
   if (!state) return 'Belum inisiasi';
   if (state.isMalamDone) return 'Sudah penutup';
@@ -472,7 +472,7 @@ const getStatusLabel = (id: number) => {
   return 'Belum inisiasi';
 };
 
-const getStatusStyle = (id: number) => {
+const getStatusStyle = (id: string | number) => {
   const state = mockMerchantStates[id];
   if (!state || (!state.isPagiDone && !state.isMalamDone)) return 'bg-slate-100 text-slate-500';
   if (state.isMalamDone) return 'bg-slate-900 text-white';
@@ -488,7 +488,10 @@ const formatNumber = (val: number) => {
 const mockSummary = computed(() => {
   if (!selectedMerchantId.value) return { qris: 0, cash: 0, total: 0 };
   // Fixed randomized mock based on ID for consistency during session
-  const seed = (selectedMerchantId.value * 12345) % 10000;
+  const idValue = typeof selectedMerchantId.value === 'string' 
+    ? selectedMerchantId.value.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+    : (selectedMerchantId.value || 0);
+  const seed = (idValue * 12345) % 10000;
   const qris = 1500000 + seed * 100;
   const cash = 800000 + seed * 50;
   return { qris, cash, total: qris + cash };
