@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { isTokenValid } from '../core/utils/auth';
 
 const routes = [
   { path: '/', redirect: '/login' },
@@ -42,7 +43,9 @@ const router = createRouter({
 router.beforeEach((to, _from, next) => {
   const token = localStorage.getItem('token');
 
-  if (to.name !== 'Login' && !token) {
+  if (to.name !== 'Login' && !isTokenValid(token)) {
+    // If not on login page and token is invalid/expired, redirect to login
+    localStorage.removeItem('token'); // Clear invalid token
     next({ name: 'Login' });
   } else {
     next();
