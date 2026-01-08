@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-slate-50 flex flex-col">
     <Header v-if="!isLoginPage" />
     
-    <main :class="['flex-1 overflow-x-hidden', !isLoginPage ? 'pt-24 pb-20' : '']">
+    <main :class="['flex-1 overflow-x-hidden', !isLoginPage ? 'pt-14 pb-20' : '']">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
