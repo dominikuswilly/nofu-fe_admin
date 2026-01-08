@@ -12,6 +12,7 @@ export interface Merchant {
   cash: number;
   offDays: number;
   position: string;
+  isPagiDone: boolean;
   stocks?: any[]; // For raw data from API if needed
 }
 

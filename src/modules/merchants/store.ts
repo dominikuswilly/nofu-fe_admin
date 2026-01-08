@@ -26,11 +26,9 @@ export const useMerchantStore = defineStore('merchants', () => {
           merchants.value = result.data.map((m: any) => ({
             ...m,
             // If stocks.length > 0, set active to true. 
-            // If stocks.length < 0 (not really possible, but per instruction), 
-            // or if it's 0, we can keep the current condition or default to what the API says.
-            // "if stocks.length > 0 , then set the merchant card active."
-            // "if stocks.length < 0, keep the current condition."
-            active: m.stocks && m.stocks.length > 0 ? true : (m.active ?? false)
+            active: m.stocks && m.stocks.length > 0 ? true : (m.active ?? false),
+            // isPagiDone set true when stocks.length > 0
+            isPagiDone: m.stocks && m.stocks.length > 0
           }));
         }
       }
