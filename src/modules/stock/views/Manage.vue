@@ -389,7 +389,7 @@ const mockMerchantStates = reactive<Record<string | number, { isPagiDone: boolea
   3: { isPagiDone: true, isMalamDone: true },
 });
 
-const isPagiDone = computed(() => selectedMerchantId.value ? mockMerchantStates[selectedMerchantId.value]?.isPagiDone : false);
+const isPagiDone = computed(() => selectedMerchant.value?.isPagiDone || false);
 const isMalamDone = computed(() => selectedMerchantId.value ? mockMerchantStates[selectedMerchantId.value]?.isMalamDone : false);
 
 const selectMerchant = (id: string | number) => {
@@ -445,7 +445,10 @@ const submitInitiation = async () => {
 
     await stockStore.createStockInitiation(payload);
     
-    // Update mock state
+    // Refresh merchant data to get updated isPagiDone status
+    await merchantStore.fetchMerchants();
+    
+    // Update mock state for malam flow (remaining mock logic)
     mockMerchantStates[selectedMerchantId.value] = {
       isPagiDone: true,
       isMalamDone: false
@@ -465,18 +468,18 @@ const getInitials = (name: string) => {
 };
 
 const getStatusLabel = (id: string | number) => {
+  const merchant = merchantStore.merchants.find(m => m.id === id);
   const state = mockMerchantStates[id];
-  if (!state) return 'Belum inisiasi';
-  if (state.isMalamDone) return 'Sudah penutup';
-  if (state.isPagiDone) return 'Menunggu penutup';
+  if (state?.isMalamDone) return 'Sudah penutup';
+  if (merchant?.isPagiDone || state?.isPagiDone) return 'Menunggu penutup';
   return 'Belum inisiasi';
 };
 
 const getStatusStyle = (id: string | number) => {
+  const merchant = merchantStore.merchants.find(m => m.id === id);
   const state = mockMerchantStates[id];
-  if (!state || (!state.isPagiDone && !state.isMalamDone)) return 'bg-slate-100 text-slate-500';
-  if (state.isMalamDone) return 'bg-slate-900 text-white';
-  if (state.isPagiDone) return 'bg-blue-100 text-blue-600';
+  if (state?.isMalamDone) return 'bg-slate-900 text-white';
+  if (merchant?.isPagiDone || state?.isPagiDone) return 'bg-blue-100 text-blue-600';
   return 'bg-slate-100 text-slate-500';
 };
 
