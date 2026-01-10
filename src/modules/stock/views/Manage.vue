@@ -376,7 +376,7 @@ const isSubmitting = ref(false);
 const initiationData = reactive<Record<string, number>>({});
 
 // Initialize data
-merchantStore.fetchMerchants();
+merchantStore.fetchMerchantsWithStock();
 
 const selectedMerchant = computed(() => {
   return merchantStore.merchants.find(m => m.id === selectedMerchantId.value);
@@ -446,7 +446,7 @@ const submitInitiation = async () => {
     await stockStore.createStockInitiation(payload);
     
     // Refresh merchant data to get updated isPagiDone status
-    await merchantStore.fetchMerchants();
+    await merchantStore.fetchMerchantsWithStock();
     
     // Update mock state for malam flow (remaining mock logic)
     mockMerchantStates[selectedMerchantId.value] = {

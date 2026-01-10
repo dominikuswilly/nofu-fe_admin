@@ -10,7 +10,32 @@ export const useMerchantStore = defineStore('merchants', () => {
   const fetchMerchants = async () => {
     try {
       const token = localStorage.getItem('token');
-      // Updated to use the new merchants-stock endpoint
+      const response = await fetch(`${API_CONFIG.customerApi}/merchants`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.responseCode === "200" && Array.isArray(result.data)) {
+          merchants.value = result.data.map((m: any) => ({
+            ...m,
+            active: m.active ?? false,
+            isPagiDone: m.isPagiDone ?? false
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch merchants:', error);
+    }
+  };
+
+  const fetchMerchantsWithStock = async () => {
+    try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`${API_CONFIG.customerApi}/frontend/merchants-stock`, {
         method: 'GET',
         headers: {
@@ -28,12 +53,12 @@ export const useMerchantStore = defineStore('merchants', () => {
             // If stocks.length > 0, set active to true. 
             active: m.stocks && m.stocks.length > 0 ? true : (m.active ?? false),
             // isPagiDone set true when stocks.length > 0
-            isPagiDone: m.stocks && m.stocks.length > 0
+            isPagiDone: (m.stocks && m.stocks.length > 0) || (m.isPagiDone ?? false)
           }));
         }
       }
     } catch (error) {
-      console.error('Failed to fetch merchants:', error);
+      console.error('Failed to fetch merchants with stock:', error);
     }
   };
 
@@ -106,6 +131,7 @@ export const useMerchantStore = defineStore('merchants', () => {
   return {
     merchants,
     fetchMerchants,
+    fetchMerchantsWithStock,
     addMerchant,
     updateMerchant,
     toggleStatus,
