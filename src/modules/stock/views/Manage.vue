@@ -382,15 +382,8 @@ const selectedMerchant = computed(() => {
   return merchantStore.merchants.find(m => m.id === selectedMerchantId.value);
 });
 
-// Mock States based on merchantId (In real app, this would be in a store or fetched per merchant)
-const mockMerchantStates = reactive<Record<string | number, { isPagiDone: boolean, isMalamDone: boolean }>>({
-  1: { isPagiDone: true, isMalamDone: false },
-  2: { isPagiDone: false, isMalamDone: false },
-  3: { isPagiDone: true, isMalamDone: true },
-});
-
 const isPagiDone = computed(() => selectedMerchant.value?.isPagiDone || false);
-const isMalamDone = computed(() => selectedMerchantId.value ? mockMerchantStates[selectedMerchantId.value]?.isMalamDone : false);
+const isMalamDone = computed(() => selectedMerchant.value?.isMalamDone || false);
 
 const selectMerchant = (id: string | number) => {
   if (selectedMerchantId.value === id) {
@@ -445,14 +438,8 @@ const submitInitiation = async () => {
 
     await stockStore.createStockInitiation(payload);
     
-    // Refresh merchant data to get updated isPagiDone status
+    // Refresh merchant data to get updated isPagiDone/isMalamDone status
     await merchantStore.fetchMerchantsWithStock();
-    
-    // Update mock state for malam flow (remaining mock logic)
-    mockMerchantStates[selectedMerchantId.value] = {
-      isPagiDone: true,
-      isMalamDone: false
-    };
     
     isInitiationModalOpen.value = false;
     alert('Berhasil menyimpan inisiasi stok.');
@@ -469,17 +456,15 @@ const getInitials = (name: string) => {
 
 const getStatusLabel = (id: string | number) => {
   const merchant = merchantStore.merchants.find(m => m.id === id);
-  const state = mockMerchantStates[id];
-  if (state?.isMalamDone) return 'Sudah penutup';
-  if (merchant?.isPagiDone || state?.isPagiDone) return 'Menunggu penutup';
+  if (merchant?.isMalamDone) return 'Sudah penutup';
+  if (merchant?.isPagiDone) return 'Menunggu penutup';
   return 'Belum inisiasi';
 };
 
 const getStatusStyle = (id: string | number) => {
   const merchant = merchantStore.merchants.find(m => m.id === id);
-  const state = mockMerchantStates[id];
-  if (state?.isMalamDone) return 'bg-slate-900 text-white';
-  if (merchant?.isPagiDone || state?.isPagiDone) return 'bg-blue-100 text-blue-600';
+  if (merchant?.isMalamDone) return 'bg-slate-900 text-white';
+  if (merchant?.isPagiDone) return 'bg-blue-100 text-blue-600';
   return 'bg-slate-100 text-slate-500';
 };
 

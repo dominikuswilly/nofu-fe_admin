@@ -13,6 +13,7 @@ export interface Merchant {
   offDays: number;
   position: string;
   isPagiDone: boolean;
+  isMalamDone: boolean;
   stocks?: any[]; // For raw data from API if needed
 }
 

@@ -24,7 +24,8 @@ export const useMerchantStore = defineStore('merchants', () => {
           merchants.value = result.data.map((m: any) => ({
             ...m,
             active: m.active ?? false,
-            isPagiDone: m.isPagiDone ?? false
+            isPagiDone: m.isPagiDone ?? false,
+            isMalamDone: m.isMalamDone ?? false
           }));
         }
       }
@@ -53,7 +54,8 @@ export const useMerchantStore = defineStore('merchants', () => {
             // If stocks.length > 0, set active to true. 
             active: m.stocks && m.stocks.length > 0 ? true : (m.active ?? false),
             // isPagiDone set true when stocks.length > 0
-            isPagiDone: (m.stocks && m.stocks.length > 0) || (m.isPagiDone ?? false)
+            isPagiDone: (m.stocks && m.stocks.length > 0) || (m.isPagiDone ?? false),
+            isMalamDone: m.isMalamDone ?? false
           }));
         }
       }
