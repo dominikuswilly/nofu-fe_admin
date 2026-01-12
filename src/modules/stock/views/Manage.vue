@@ -379,7 +379,11 @@ const initiationData = reactive<Record<string, number>>({});
 const formatTime = (dateStr: string) => {
   if (!dateStr) return '';
   const date = new Date(dateStr);
-  return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace(':', '.');
+  return date.toLocaleTimeString('id-ID', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    timeZone: 'Asia/Jakarta'
+  }).replace(':', '.');
 };
 
 watch(selectedMerchantId, async (newId) => {
