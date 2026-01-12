@@ -137,10 +137,10 @@ export const useStockStore = defineStore('stocks', () => {
     }
   };
 
-  const fetchStockHistory = async (merchantId: string) => {
+  const fetchStockHistory = async (stockMasterId: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_CONFIG.transactionApi}/stock/${merchantId}/history`, {
+      const response = await fetch(`${API_CONFIG.transactionApi}/stock/${stockMasterId}/history`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

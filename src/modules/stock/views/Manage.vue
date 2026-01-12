@@ -384,9 +384,16 @@ const formatTime = (dateStr: string) => {
 
 watch(selectedMerchantId, async (newId) => {
   if (newId) {
-    const history = await stockStore.fetchStockHistory(newId.toString());
-    if (history && history.length > 0) {
-      lastStockHistory.value = history[0];
+    const merchant = merchantStore.merchants.find(m => m.id === newId);
+    const stockMasterId = merchant?.stocks && merchant.stocks.length > 0 ? merchant.stocks[0].id : null;
+    
+    if (stockMasterId) {
+      const history = await stockStore.fetchStockHistory(stockMasterId);
+      if (history && history.length > 0) {
+        lastStockHistory.value = history[0];
+      } else {
+        lastStockHistory.value = null;
+      }
     } else {
       lastStockHistory.value = null;
     }
@@ -460,6 +467,16 @@ const submitInitiation = async () => {
     
     // Refresh merchant data to get updated isPagiDone/isMalamDone status
     await merchantStore.fetchMerchantsWithStock();
+
+    // Refresh history
+    const merchant = merchantStore.merchants.find(m => m.id === selectedMerchantId.value);
+    const stockMasterId = merchant?.stocks && merchant.stocks.length > 0 ? merchant.stocks[0].id : null;
+    if (stockMasterId) {
+      const history = await stockStore.fetchStockHistory(stockMasterId);
+      if (history && history.length > 0) {
+        lastStockHistory.value = history[0];
+      }
+    }
     
     isInitiationModalOpen.value = false;
     alert('Berhasil menyimpan inisiasi stok.');
