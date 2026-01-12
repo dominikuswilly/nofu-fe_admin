@@ -107,7 +107,7 @@
               </div>
               <div v-if="isPagiDone" class="bg-green-100 text-green-600 px-3 py-1 rounded-full text-[10px] font-black flex items-center space-x-1">
                 <CheckCircleIcon class="w-3 h-3" />
-                <span>SELESAI</span>
+                <span>{{ lastStockHistory?.status || 'N/A' }}</span>
               </div>
             </div>
             
@@ -117,7 +117,7 @@
 
             <div v-if="isPagiDone" class="mb-8 p-3 bg-slate-50 rounded-2xl flex items-center justify-between border border-dashed border-slate-200">
               <span class="text-xs font-bold text-slate-400">Status</span>
-              <span class="text-xs font-black text-slate-800">Selesai pukul 08.15 WIB</span>
+              <span class="text-xs font-black text-slate-800">Selesai pukul {{ lastStockHistory?.createdAt ? formatTime(lastStockHistory.createdAt) : 'N/A' }} WIB</span>
             </div>
 
             <button 
@@ -350,7 +350,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue';
+import { ref, computed, reactive, watch } from 'vue';
 import { 
   CheckIcon,
   CheckCircleIcon,
@@ -369,11 +369,31 @@ import { parseJwt } from '../../../core/utils/auth';
 const merchantStore = useMerchantStore();
 const stockStore = useStockStore();
 const selectedMerchantId = ref<string | number | null>(null);
+const lastStockHistory = ref<any>(null);
 
 // Initiation State
 const isInitiationModalOpen = ref(false);
 const isSubmitting = ref(false);
 const initiationData = reactive<Record<string, number>>({});
+
+const formatTime = (dateStr: string) => {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace(':', '.');
+};
+
+watch(selectedMerchantId, async (newId) => {
+  if (newId) {
+    const history = await stockStore.fetchStockHistory(newId.toString());
+    if (history && history.length > 0) {
+      lastStockHistory.value = history[0];
+    } else {
+      lastStockHistory.value = null;
+    }
+  } else {
+    lastStockHistory.value = null;
+  }
+});
 
 // Initialize data
 merchantStore.fetchMerchantsWithStock();

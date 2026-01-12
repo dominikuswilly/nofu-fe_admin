@@ -137,6 +137,30 @@ export const useStockStore = defineStore('stocks', () => {
     }
   };
 
+  const fetchStockHistory = async (merchantId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_CONFIG.transactionApi}/stock/${merchantId}/history`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.responseCode === "200" && Array.isArray(result.data)) {
+          return result.data;
+        }
+      }
+      return [];
+    } catch (error) {
+      console.error('Failed to fetch stock history:', error);
+      return [];
+    }
+  };
+
   return {
     requests,
     products,
@@ -146,6 +170,8 @@ export const useStockStore = defineStore('stocks', () => {
     rejectRequest,
     addProduct,
     updateProduct,
-    createStockInitiation
+    createStockInitiation,
+    fetchStockHistory
   };
 });
+
