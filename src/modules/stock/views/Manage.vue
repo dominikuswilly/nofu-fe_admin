@@ -378,7 +378,14 @@ const initiationData = reactive<Record<string, number>>({});
 
 const formatTime = (dateStr: string) => {
   if (!dateStr) return '';
-  const date = new Date(dateStr);
+  
+  // Normalize date string: ensure it's treated as UTC+7 if no offset is provided
+  let normalizedStr = dateStr.replace(' ', 'T');
+  if (!normalizedStr.includes('Z') && !normalizedStr.includes('+')) {
+    normalizedStr += '+07:00';
+  }
+
+  const date = new Date(normalizedStr);
   return date.toLocaleTimeString('id-ID', { 
     hour: '2-digit', 
     minute: '2-digit',
