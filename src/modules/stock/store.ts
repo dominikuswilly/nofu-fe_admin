@@ -4,11 +4,7 @@ import type { RestockRequest, DashboardOverview, Product } from '../../core/type
 import { API_CONFIG } from '../../core/api/config';
 
 export const useStockStore = defineStore('stocks', () => {
-  const requests = ref<RestockRequest[]>([
-    { id: 1, merchantId: 1, merchantName: 'Toko Ahmad', qty: 50, status: 'pending', timestamp: '2026-01-04T08:30:00Z' },
-    { id: 2, merchantId: 3, merchantName: 'Cahaya Rejeki', qty: 100, status: 'pending', timestamp: '2026-01-04T09:15:00Z' },
-    { id: 3, merchantId: 7, merchantName: 'Gani Kelontong', qty: 30, status: 'approved', timestamp: '2026-01-03T16:45:00Z' },
-  ]);
+  const requests = ref<RestockRequest[]>([]);
 
   const products = ref<Product[]>([]);
 
@@ -17,7 +13,7 @@ export const useStockStore = defineStore('stocks', () => {
     active: 6,
     lowStock: 2,
     todaySales: 25000000,
-    restockRequests: requests.value.filter(r => r.status === 'pending'),
+    restockRequests: [],
   });
 
   const fetchProducts = async () => {
@@ -42,19 +38,42 @@ export const useStockStore = defineStore('stocks', () => {
     }
   };
 
-  const approveRequest = (id: number) => {
-    const req = requests.value.find(r => r.id === id);
-    if (req) {
-      req.status = 'approved';
-      overview.value.restockRequests = requests.value.filter(r => r.status === 'pending');
+  const fetchRestockRequests = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_CONFIG.transactionApi}/admin/restock`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.responseCode === "200" && Array.isArray(result.data)) {
+          requests.value = result.data;
+          overview.value.restockRequests = requests.value.filter(r => r.status === 'PENDING');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch restock requests:', error);
     }
   };
 
-  const rejectRequest = (id: number) => {
+  const approveRequest = (id: string) => {
+    const req = requests.value.find(r => r.id === id);
+    if (req) {
+      req.status = 'approved';
+      overview.value.restockRequests = requests.value.filter(r => r.status === 'PENDING');
+    }
+  };
+
+  const rejectRequest = (id: string) => {
     const req = requests.value.find(r => r.id === id);
     if (req) {
       req.status = 'rejected';
-      overview.value.restockRequests = requests.value.filter(r => r.status === 'pending');
+      overview.value.restockRequests = requests.value.filter(r => r.status === 'PENDING');
     }
   };
 
@@ -166,6 +185,7 @@ export const useStockStore = defineStore('stocks', () => {
     products,
     overview,
     fetchProducts,
+    fetchRestockRequests,
     approveRequest,
     rejectRequest,
     addProduct,

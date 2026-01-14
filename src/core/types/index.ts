@@ -18,12 +18,17 @@ export interface Merchant {
 }
 
 export interface RestockRequest {
-  id: number;
-  merchantId: number;
-  merchantName: string;
-  qty: number;
-  status: 'pending' | 'approved' | 'rejected';
-  timestamp: string;
+  id: string;
+  merchantId: string;
+  merchantName?: string;
+  qty?: number | string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy?: string;
+  updatedBy?: string;
+  longitude?: number;
+  latitude?: number;
 }
 
 export interface DashboardOverview {

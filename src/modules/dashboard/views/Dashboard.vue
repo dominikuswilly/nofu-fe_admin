@@ -71,12 +71,12 @@
                 <TruckIcon class="w-5 h-5" />
               </div>
               <div>
-                <p class="text-sm font-bold text-slate-800">{{ req.merchantName }}</p>
-                <p class="text-[10px] text-slate-400 font-medium">{{ formatDate(req.timestamp) }}</p>
+                <p class="text-sm font-bold text-slate-800">{{ req.merchantId }}</p>
+                <p class="text-[10px] text-slate-400 font-medium">{{ formatDate(req.updatedAt || req.createdAt) }}</p>
               </div>
             </div>
             <div class="flex items-center space-x-2">
-              <span class="text-sm font-black text-slate-900">{{ req.qty }} <span class="text-[10px] font-medium text-slate-400">UNIT</span></span>
+              <span class="text-sm font-black text-slate-900">N/A <span class="text-[10px] font-medium text-slate-400">UNIT</span></span>
               <button @click.stop="stockStore.approveRequest(req.id)" class="p-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
                 <CheckIcon class="w-4 h-4" />
               </button>
@@ -105,7 +105,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { 
   BuildingStorefrontIcon, 
   SignalIcon, 
@@ -137,6 +137,11 @@ const formatCurrency = (val: number) => {
 };
 
 const formatDate = (ts: string) => {
+  if (!ts) return '-';
   return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
+
+onMounted(async () => {
+  await stockStore.fetchRestockRequests();
+});
 </script>
