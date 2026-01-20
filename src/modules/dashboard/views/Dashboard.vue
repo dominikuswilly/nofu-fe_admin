@@ -14,7 +14,7 @@
         :value="overview.active" 
         :icon="SignalIcon" 
         colorClass="bg-green-100 text-green-600"
-        :trend="4"
+        :trend="0"
       />
       <MetricCard 
         label="Stok Rendah" 
@@ -27,8 +27,8 @@
         :value="formatCurrency(overview.todaySales)" 
         :icon="BanknotesIcon" 
         colorClass="bg-emerald-100 text-emerald-600"
-        :trend="12"
-        :progress="75"
+        :trend="0"
+        :progress="0"
       />
     </div>
 
@@ -60,9 +60,9 @@
       <div class="card-premium">
         <div class="flex items-center justify-between mb-4">
           <h3 class="font-bold text-slate-900">Menunggu Restock</h3>
-          <span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+          <!-- <span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
             {{ overview.restockRequests.length }} BARU
-          </span>
+          </span> -->
         </div>
         <div class="space-y-3">
           <div v-for="req in overview.restockRequests" :key="req.id" class="p-3 bg-slate-50 rounded-xl flex items-center justify-between border border-transparent hover:border-slate-200 transition-all cursor-pointer">
@@ -71,12 +71,12 @@
                 <TruckIcon class="w-5 h-5" />
               </div>
               <div>
-                <p class="text-sm font-bold text-slate-800">{{ req.merchantId }}</p>
+                <p class="text-sm font-bold text-slate-800">{{ req.merchantName }}</p>
                 <p class="text-[10px] text-slate-400 font-medium">{{ formatDate(req.updatedAt || req.createdAt) }}</p>
               </div>
             </div>
             <div class="flex items-center space-x-2">
-              <span class="text-sm font-black text-slate-900">N/A <span class="text-[10px] font-medium text-slate-400">UNIT</span></span>
+              <!-- <span class="text-sm font-black text-slate-900">N/A <span class="text-[10px] font-medium text-slate-400">UNIT</span></span> -->
               <button @click.stop="stockStore.approveRequest(req.id)" class="p-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
                 <CheckIcon class="w-4 h-4" />
               </button>
@@ -91,7 +91,7 @@
       <div class="flex items-center justify-between mb-4">
         <div>
           <h4 class="font-bold text-lg">Progres Kampanye Penjualan</h4>
-          <p class="text-white/70 text-xs">Target: Rp 30.000.000 bulan ini</p>
+          <p class="text-white/70 text-xs">Target: N/A bulan ini</p>
         </div>
         <div class="w-12 h-12 rounded-full border-4 border-white/20 flex items-center justify-center">
           <span class="text-xs font-bold">85%</span>

@@ -9,10 +9,10 @@ export const useStockStore = defineStore('stocks', () => {
   const products = ref<Product[]>([]);
 
   const overview = ref<DashboardOverview>({
-    totalMerchants: 8,
-    active: 6,
-    lowStock: 2,
-    todaySales: 25000000,
+    totalMerchants: 0,
+    active: 0,
+    lowStock: 0,
+    todaySales: 0,
     restockRequests: [],
   });
 
