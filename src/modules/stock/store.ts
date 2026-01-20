@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { RestockRequest, DashboardOverview, Product } from '../../core/types';
+import type { RestockRequest, DashboardOverview, Product, RestockResponse } from '../../core/types';
 import { API_CONFIG } from '../../core/api/config';
 
 export const useStockStore = defineStore('stocks', () => {
@@ -180,6 +180,42 @@ export const useStockStore = defineStore('stocks', () => {
     }
   };
 
+  const fetchRestockDetail = async (id: string): Promise<RestockResponse | null> => {
+    // Mocking for now as requested
+    console.log('Fetching restock detail for ID:', id);
+
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    const mockData: RestockResponse = {
+      id: id,
+      totalQty: 10,
+      totalItem: 2,
+      location: {
+        longitude: 106.8736979,
+        lattitude: -6.1658450
+      },
+      restockDetail: [
+        {
+          id: "1",
+          productName: "Air Mineral 600ml",
+          productId: "prod-001",
+          productImageUrl: "https://placehold.co/100",
+          qty: 6
+        },
+        {
+          id: "2",
+          productName: "Kripik Singkong 100g",
+          productId: "prod-002",
+          productImageUrl: "https://placehold.co/100",
+          qty: 4
+        }
+      ]
+    };
+
+    return mockData;
+  };
+
   return {
     requests,
     products,
@@ -191,7 +227,8 @@ export const useStockStore = defineStore('stocks', () => {
     addProduct,
     updateProduct,
     createStockInitiation,
-    fetchStockHistory
+    fetchStockHistory,
+    fetchRestockDetail
   };
 });
 

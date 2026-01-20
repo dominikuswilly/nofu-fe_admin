@@ -17,6 +17,25 @@ export interface Merchant {
   stocks?: any[]; // For raw data from API if needed
 }
 
+export interface RestockDetailItem {
+  id: string;
+  productName: string;
+  productId: string;
+  productImageUrl: string;
+  qty: number;
+}
+
+export interface RestockResponse {
+  id: string;
+  totalQty: number;
+  totalItem: number;
+  location: {
+    longitude: number;
+    lattitude: number; // Keeping user's spelling
+  };
+  restockDetail: RestockDetailItem[];
+}
+
 export interface RestockRequest {
   id: string;
   merchantId: string;
