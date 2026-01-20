@@ -35,7 +35,7 @@
     <!-- Main Charts Layout -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Stock Overview Mock Chart -->
-      <div class="card-premium">
+      <!-- <div class="card-premium">
         <div class="flex items-center justify-between mb-6">
           <h3 class="font-bold text-slate-900">Ketersediaan Stok</h3>
           <button class="text-xs font-bold text-green-600 uppercase">Detail</button>
@@ -54,7 +54,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- Restock Requests Carousel/List -->
       <div class="card-premium">
@@ -183,7 +183,7 @@
     </div>
 
     <!-- Quick Actions / Progress -->
-    <div class="card-premium bg-gradient-to-br from-green-600 to-emerald-700 text-white border-none">
+    <!-- <div class="card-premium bg-gradient-to-br from-green-600 to-emerald-700 text-white border-none">
       <div class="flex items-center justify-between mb-4">
         <div>
           <h4 class="font-bold text-lg">Progres Kampanye Penjualan</h4>
@@ -196,7 +196,7 @@
       <div class="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
         <div class="h-full bg-white rounded-full w-[85%]"></div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
