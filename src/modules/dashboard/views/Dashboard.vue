@@ -141,7 +141,7 @@
               <!-- Location (Optional) -->
               <!-- Location (Clickable to Google Maps) -->
               <div 
-                @click="openInGoogleMaps(selectedDetail.location.lattitude, selectedDetail.location.longitude)"
+                @click="openInGoogleMaps(selectedDetail.location.latitude, selectedDetail.location.longitude)"
                 class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center justify-between cursor-pointer hover:bg-emerald-100 transition-colors group"
               >
                 <div class="flex items-center space-x-4">
@@ -150,7 +150,7 @@
                   </div>
                   <div>
                     <p class="text-xs font-bold text-emerald-900">Lokasi Restock</p>
-                    <p class="text-[10px] text-emerald-600 font-medium tracking-tight">Lat: {{ selectedDetail.location.lattitude }}, Lon: {{ selectedDetail.location.longitude }}</p>
+                    <p class="text-[10px] text-emerald-600 font-medium tracking-tight">Lat: {{ selectedDetail.location.latitude }}, Lon: {{ selectedDetail.location.longitude }}</p>
                   </div>
                 </div>
                 <div class="flex items-center text-[10px] font-bold text-emerald-600 uppercase tracking-widest bg-white/50 px-2 py-1 rounded-lg">

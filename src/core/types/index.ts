@@ -29,9 +29,10 @@ export interface RestockResponse {
   id: string;
   totalQty: number;
   totalItem: number;
+  status: string;
   location: {
     longitude: number;
-    lattitude: number; // Keeping user's spelling
+    latitude: number;
   };
   restockDetail: RestockDetailItem[];
 }

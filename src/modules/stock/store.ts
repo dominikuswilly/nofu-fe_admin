@@ -181,39 +181,27 @@ export const useStockStore = defineStore('stocks', () => {
   };
 
   const fetchRestockDetail = async (id: string): Promise<RestockResponse | null> => {
-    // Mocking for now as requested
-    console.log('Fetching restock detail for ID:', id);
-
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    const mockData: RestockResponse = {
-      id: id,
-      totalQty: 10,
-      totalItem: 2,
-      location: {
-        longitude: 106.8736979,
-        lattitude: -6.1658450
-      },
-      restockDetail: [
-        {
-          id: "1",
-          productName: "Air Mineral 600ml",
-          productId: "prod-001",
-          productImageUrl: "https://placehold.co/100",
-          qty: 6
-        },
-        {
-          id: "2",
-          productName: "Kripik Singkong 100g",
-          productId: "prod-002",
-          productImageUrl: "https://placehold.co/100",
-          qty: 4
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_CONFIG.transactionApi}/restock/${id}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
-      ]
-    };
+      });
 
-    return mockData;
+      if (response.ok) {
+        const result = await response.json();
+        if (result.responseCode === "200" && result.data) {
+          return result.data;
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error('Failed to fetch restock detail:', error);
+      return null;
+    }
   };
 
   return {
