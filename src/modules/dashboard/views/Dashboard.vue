@@ -215,11 +215,11 @@ import {
 } from '@heroicons/vue/24/outline';
 import MetricCard from '../../../core/components/ui/MetricCard.vue';
 import { useStockStore } from '../../stock/store';
-import { useMerchantStore } from '../../merchants/store';
+// import { useMerchantStore } from '../../merchants/store';
 import type { RestockResponse } from '../../../core/types';
 
 const stockStore = useStockStore();
-const merchantStore = useMerchantStore();
+// const merchantStore = useMerchantStore();
 
 const showDetailModal = ref(false);
 const isLoadingDetail = ref(false);
@@ -247,11 +247,11 @@ const openInGoogleMaps = (lat: number, lon: number) => {
 };
 
 const overview = computed(() => stockStore.overview);
-const stockPreview = computed(() => merchantStore.merchants.slice(0, 4).map(m => ({
-  id: m.id,
-  name: m.name,
-  stock: m.stock
-})));
+// const stockPreview = computed(() => merchantStore.merchants.slice(0, 4).map(m => ({
+//   id: m.id,
+//   name: m.name,
+//   stock: m.stock
+// })));
 
 const formatCurrency = (val: number) => {
   return new Intl.NumberFormat('id-ID', {
