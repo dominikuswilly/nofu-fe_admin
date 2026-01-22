@@ -74,7 +74,7 @@ import { ref, onMounted, watch } from 'vue';
 import { API_CONFIG } from '../../../core/api/config';
 
 const props = defineProps<{
-  merchantId?: string | null;
+  merchantId?: string | number | null;
 }>();
 
 interface PaymentSummary {
