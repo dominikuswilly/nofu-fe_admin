@@ -113,7 +113,7 @@ const fetchSummary = async () => {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('No authentication token found');
 
-    const url = new URL(`${API_CONFIG.transactionApi}/sales/report/summary`);
+    const url = new URL(`${API_CONFIG.transactionApi}/admin/sales/report/summary`);
     if (props.merchantId) {
       url.searchParams.append('merchantId', props.merchantId.toString());
     }
