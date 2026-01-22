@@ -151,25 +151,7 @@
             </p>
 
             <!-- Ringkasan Hari Ini (Visible when merchant selected) -->
-            <div class="mb-8 space-y-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-              <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Ringkasan Hari Ini</h4>
-              <div class="flex justify-between items-center text-xs">
-                <span class="text-slate-500 font-medium">Total penjualan QRIS</span>
-                <span class="font-black text-blue-600">Rp {{ formatNumber(mockSummary.qris) }}</span>
-              </div>
-              <div class="flex justify-between items-center text-xs border-b border-slate-200 pb-2">
-                <span class="text-slate-500 font-medium">Total penjualan CASH</span>
-                <span class="font-black text-green-600">Rp {{ formatNumber(mockSummary.cash) }}</span>
-              </div>
-              <div class="flex justify-between items-center pt-1">
-                <span class="text-xs font-bold text-slate-900">Total Penjualan</span>
-                <span class="text-sm font-black text-slate-900">Rp {{ formatNumber(mockSummary.qris + mockSummary.cash) }}</span>
-              </div>
-              <div class="pt-3 border-t border-slate-200 flex flex-col items-center justify-center">
-                <span class="text-[10px] font-bold text-slate-400 uppercase mb-1">Saldo yang harus dikembalikan</span>
-                <span class="text-2xl font-black text-green-600">Rp {{ formatNumber(mockSummary.total) }}</span>
-              </div>
-            </div>
+<SalesSummaryCard :merchant-id="selectedMerchantId" />
 
             <button 
               class="w-full py-4 rounded-2xl font-black text-sm transition-all flex items-center justify-center space-x-2 shadow-lg active:scale-95"
@@ -362,6 +344,7 @@ import {
   XMarkIcon,
   ShoppingBagIcon
 } from '@heroicons/vue/24/solid';
+import SalesSummaryCard from '../components/SalesSummaryCard.vue';
 import { useMerchantStore } from '../../merchants/store';
 import { useStockStore } from '../store';
 import { parseJwt } from '../../../core/utils/auth';
