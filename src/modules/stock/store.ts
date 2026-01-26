@@ -5,6 +5,7 @@ import { API_CONFIG } from '../../core/api/config';
 
 export const useStockStore = defineStore('stocks', () => {
   const requests = ref<RestockRequest[]>([]);
+  const restockHistory = ref<RestockRequest[]>([]);
 
   const products = ref<Product[]>([]);
 
@@ -203,6 +204,29 @@ export const useStockStore = defineStore('stocks', () => {
     }
   };
 
+  const fetchAdminRestockHistory = async (date: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_CONFIG.transactionApi}/admin/restock/history?date=${date}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.responseCode === "200" && Array.isArray(result.data)) {
+          restockHistory.value = result.data;
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch restock history:', error);
+      restockHistory.value = [];
+    }
+  };
+
   const fetchRestockDetail = async (id: string): Promise<RestockResponse | null> => {
     try {
       const token = localStorage.getItem('token');
@@ -229,6 +253,7 @@ export const useStockStore = defineStore('stocks', () => {
 
   return {
     requests,
+    restockHistory,
     products,
     overview,
     fetchProducts,
@@ -239,7 +264,8 @@ export const useStockStore = defineStore('stocks', () => {
     updateProduct,
     createStockInitiation,
     fetchStockHistory,
-    fetchRestockDetail
+    fetchRestockDetail,
+    fetchAdminRestockHistory
   };
 });
 
