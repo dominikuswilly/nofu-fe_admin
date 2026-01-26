@@ -24,6 +24,11 @@ const routes = [
     component: () => import('../modules/stock/views/Manage.vue')
   },
   {
+    path: '/restock',
+    name: 'Restock',
+    component: () => import('../modules/stock/views/Restock.vue')
+  },
+  {
     path: '/products',
     name: 'Products',
     component: () => import('../modules/products/views/Catalog.vue')
