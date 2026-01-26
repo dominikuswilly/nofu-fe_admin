@@ -61,20 +61,43 @@ export const useStockStore = defineStore('stocks', () => {
     }
   };
 
-  const approveRequest = (id: string) => {
-    const req = requests.value.find(r => r.id === id);
-    if (req) {
-      req.status = 'approved';
-      overview.value.restockRequests = requests.value.filter(r => r.status === 'PENDING');
+  const processRestockRequest = async (id: string, action: 'approve' | 'reject') => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_CONFIG.transactionApi}/admin/restock/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ action })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.responseCode === "200") {
+          // Update local state instead of full refetch for better UX
+          const req = requests.value.find(r => r.id === id);
+          if (req) {
+            req.status = action === 'approve' ? 'approved' : 'rejected';
+            overview.value.restockRequests = requests.value.filter(r => r.status === 'PENDING');
+          }
+          return true;
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error(`Failed to ${action} request:`, error);
+      return false;
     }
   };
 
-  const rejectRequest = (id: string) => {
-    const req = requests.value.find(r => r.id === id);
-    if (req) {
-      req.status = 'rejected';
-      overview.value.restockRequests = requests.value.filter(r => r.status === 'PENDING');
-    }
+  const approveRequest = async (id: string) => {
+    return await processRestockRequest(id, 'approve');
+  };
+
+  const rejectRequest = async (id: string) => {
+    return await processRestockRequest(id, 'reject');
   };
 
   const addProduct = async (product: Omit<Product, 'id'>) => {

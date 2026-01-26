@@ -164,16 +164,18 @@
           <!-- Footer -->
           <div class="p-5 bg-slate-50 flex space-x-3">
             <button 
-              @click="showDetailModal = false"
-              class="flex-1 py-3 px-4 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-100 transition-colors"
+              @click="handleReject"
+              :disabled="isProcessing"
+              class="flex-1 py-3 px-4 bg-red-100 text-red-600 font-bold rounded-xl hover:bg-red-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Tutup
+              {{ isProcessing ? 'Memproses...' : 'Tolak Restock' }}
             </button>
             <button 
-              @click="stockStore.approveRequest(selectedDetail?.id || ''); showDetailModal = false"
-              class="flex-1 py-3 px-4 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 shadow-lg shadow-green-500/30 transition-all active:scale-95"
+              @click="handleApprove"
+              :disabled="isProcessing"
+              class="flex-1 py-3 px-4 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 shadow-lg shadow-green-500/30 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Setujui Restock
+              {{ isProcessing ? 'Memproses...' : 'Setujui Restock' }}
             </button>
           </div>
         </div>
@@ -223,6 +225,7 @@ const stockStore = useStockStore();
 
 const showDetailModal = ref(false);
 const isLoadingDetail = ref(false);
+const isProcessing = ref(false);
 const selectedDetail = ref<RestockResponse | null>(null);
 
 const handleShowDetail = async (id: string) => {
@@ -238,6 +241,34 @@ const handleShowDetail = async (id: string) => {
     showDetailModal.value = false;
   } finally {
     isLoadingDetail.value = false;
+  }
+};
+
+const handleApprove = async () => {
+  if (!selectedDetail.value) return;
+  
+  isProcessing.value = true;
+  try {
+    const success = await stockStore.approveRequest(selectedDetail.value.id);
+    if (success) {
+      showDetailModal.value = false;
+    }
+  } finally {
+    isProcessing.value = false;
+  }
+};
+
+const handleReject = async () => {
+  if (!selectedDetail.value) return;
+  
+  isProcessing.value = true;
+  try {
+    const success = await stockStore.rejectRequest(selectedDetail.value.id);
+    if (success) {
+      showDetailModal.value = false;
+    }
+  } finally {
+    isProcessing.value = false;
   }
 };
 
