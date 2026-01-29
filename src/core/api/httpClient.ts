@@ -21,10 +21,13 @@ export const httpClient = {
         }
       });
     }
+
+    const token = localStorage.getItem('token');
     const response = await fetch(finalUrl.toString(), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         ...rest.headers,
       },
       ...rest,
@@ -33,10 +36,12 @@ export const httpClient = {
   },
 
   async post<T>(url: string, data?: any, options: RequestOptions = {}): Promise<T> {
+    const token = localStorage.getItem('token');
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         ...options.headers,
       },
       body: JSON.stringify(data),
@@ -46,10 +51,27 @@ export const httpClient = {
   },
 
   async put<T>(url: string, data?: any, options: RequestOptions = {}): Promise<T> {
+    const token = localStorage.getItem('token');
     const response = await fetch(url, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        ...options.headers,
+      },
+      body: JSON.stringify(data),
+      ...options,
+    });
+    return handleResponse(response);
+  },
+
+  async patch<T>(url: string, data?: any, options: RequestOptions = {}): Promise<T> {
+    const token = localStorage.getItem('token');
+    const response = await fetch(url, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         ...options.headers,
       },
       body: JSON.stringify(data),
@@ -59,10 +81,12 @@ export const httpClient = {
   },
 
   async delete<T>(url: string, options: RequestOptions = {}): Promise<T> {
+    const token = localStorage.getItem('token');
     const response = await fetch(url, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         ...options.headers,
       },
       ...options,

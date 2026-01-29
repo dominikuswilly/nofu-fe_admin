@@ -251,8 +251,14 @@ const handleApprove = async () => {
   try {
     const success = await stockStore.approveRequest(selectedDetail.value.id);
     if (success) {
+      alert('Berhasil menyetujui restock.');
       showDetailModal.value = false;
+      await stockStore.fetchRestockRequests();
+    } else {
+      alert('Gagal menyetujui restock.');
     }
+  } catch (error: any) {
+    alert(error.message || 'Terjadi kesalahan saat menyetujui restock.');
   } finally {
     isProcessing.value = false;
   }
@@ -265,8 +271,14 @@ const handleReject = async () => {
   try {
     const success = await stockStore.rejectRequest(selectedDetail.value.id);
     if (success) {
+      alert('Berhasil menolak restock.');
       showDetailModal.value = false;
+      await stockStore.fetchRestockRequests();
+    } else {
+      alert('Gagal menolak restock.');
     }
+  } catch (error: any) {
+    alert(error.message || 'Terjadi kesalahan saat menolak restock.');
   } finally {
     isProcessing.value = false;
   }
