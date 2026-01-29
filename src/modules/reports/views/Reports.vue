@@ -33,10 +33,10 @@
           <tbody class="divide-y divide-slate-50">
             <tr v-for="m in merchantStore.merchants" :key="m.id" class="hover:bg-slate-50/50 transition-colors">
               <td class="p-4 text-sm font-bold text-slate-700">{{ m.name }}</td>
-              <td class="p-4 text-sm font-bold text-slate-900 text-right">Rp{{ m.cash.toLocaleString() }}</td>
+              <td class="p-4 text-sm font-bold text-slate-900 text-right">Rp{{ (m.cash || 0).toLocaleString('id-ID') }}</td>
               <td class="p-4 text-center">
-                <span :class="['text-[10px] font-black px-2 py-0.5 rounded-full', m.cash > 0 ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-400']">
-                  {{ m.cash > 0 ? 'PAID' : 'EMPTY' }}
+                <span :class="['text-[10px] font-black px-2 py-0.5 rounded-full', (m.cash || 0) > 0 ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-400']">
+                  {{ (m.cash || 0) > 0 ? 'PAID' : 'EMPTY' }}
                 </span>
               </td>
             </tr>
