@@ -21,7 +21,7 @@ export const useStockStore = defineStore('stocks', () => {
   const fetchProducts = async () => {
     try {
       const result = await httpClient.get<any>(`${API_CONFIG.productApi}/products`);
-      if (result.responseCode === "200" && Array.isArray(result.data)) {
+      if (result.responseCode == "200" && Array.isArray(result.data)) {
         products.value = result.data;
       }
     } catch (error) {
@@ -32,7 +32,7 @@ export const useStockStore = defineStore('stocks', () => {
   const fetchRestockRequests = async () => {
     try {
       const result = await httpClient.get<any>(`${API_CONFIG.transactionApi}/admin/restock`);
-      if (result.responseCode === "200" && Array.isArray(result.data)) {
+      if (result.responseCode == "200" && Array.isArray(result.data)) {
         requests.value = result.data;
         overview.value.restockRequests = requests.value.filter(r => r.status === 'PENDING');
       }
@@ -44,7 +44,8 @@ export const useStockStore = defineStore('stocks', () => {
   const processRestockRequest = async (id: string, action: 'approve' | 'reject') => {
     try {
       const result = await httpClient.patch<any>(`${API_CONFIG.transactionApi}/admin/restock/${id}`, { action });
-      if (result.responseCode === "200") {
+      // If result has responseCode, check it. If body is empty ({}), treat as success since it didn't throw.
+      if (result.responseCode == "200" || Object.keys(result).length === 0) {
         // Update local state instead of full refetch for better UX
         const req = requests.value.find(r => r.id === id);
         if (req) {
@@ -71,7 +72,7 @@ export const useStockStore = defineStore('stocks', () => {
   const addProduct = async (product: Omit<Product, 'id'>) => {
     try {
       const result = await httpClient.post<any>(`${API_CONFIG.productApi}/products`, product);
-      if (result.responseCode === "201") {
+      if (result.responseCode == "201") {
         if (result.data) {
           products.value.unshift(result.data); // Add to top of list
         } else {
@@ -89,7 +90,7 @@ export const useStockStore = defineStore('stocks', () => {
   const updateProduct = async (updatedProduct: Product) => {
     try {
       const result = await httpClient.put<any>(`${API_CONFIG.productApi}/products/${updatedProduct.id}`, updatedProduct);
-      if (result.responseCode === "200") {
+      if (result.responseCode == "200") {
         await fetchProducts();
       } else {
         throw new Error(result.responseMessage || 'Gagal memperbarui produk');
@@ -103,7 +104,7 @@ export const useStockStore = defineStore('stocks', () => {
   const createStockInitiation = async (payload: any) => {
     try {
       const result = await httpClient.post<any>(`${API_CONFIG.transactionApi}/stock/create`, payload);
-      if (result.responseCode !== "201" && result.responseCode !== "200") {
+      if (result.responseCode != "201" && result.responseCode != "200") {
         throw new Error(result.responseMessage || 'Gagal membuat inisiasi stok');
       }
       return result;
@@ -116,7 +117,7 @@ export const useStockStore = defineStore('stocks', () => {
   const fetchStockHistory = async (stockMasterId: string) => {
     try {
       const result = await httpClient.get<any>(`${API_CONFIG.transactionApi}/stock/${stockMasterId}/history`);
-      if (result.responseCode === "200" && Array.isArray(result.data)) {
+      if (result.responseCode == "200" && Array.isArray(result.data)) {
         return result.data;
       }
       return [];
@@ -129,7 +130,7 @@ export const useStockStore = defineStore('stocks', () => {
   const fetchAdminRestockHistory = async (date: string) => {
     try {
       const result = await httpClient.get<any>(`${API_CONFIG.transactionApi}/admin/restock/history`, { params: { date } });
-      if (result.responseCode === "200" && Array.isArray(result.data)) {
+      if (result.responseCode == "200" && Array.isArray(result.data)) {
         restockHistory.value = result.data;
       }
     } catch (error) {
@@ -141,7 +142,7 @@ export const useStockStore = defineStore('stocks', () => {
   const fetchRestockDetail = async (id: string): Promise<RestockResponse | null> => {
     try {
       const result = await httpClient.get<any>(`${API_CONFIG.transactionApi}/restock/${id}`);
-      if (result.responseCode === "200" && result.data) {
+      if (result.responseCode == "200" && result.data) {
         return result.data;
       }
       return null;

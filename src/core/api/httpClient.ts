@@ -3,11 +3,14 @@ interface RequestOptions extends RequestInit {
 }
 
 const handleResponse = async (response: Response) => {
+  const text = await response.text();
+  const data = text ? JSON.parse(text) : {};
+
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Terjadi kesalahan sistem' }));
-    throw new Error(error.message || `Error ${response.status}: ${response.statusText}`);
+    throw new Error(data.message || data.responseMessage || `Error ${response.status}: ${response.statusText}`);
   }
-  return response.json();
+
+  return data;
 };
 
 export const httpClient = {
