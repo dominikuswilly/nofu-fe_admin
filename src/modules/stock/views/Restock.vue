@@ -246,10 +246,7 @@
                 </svg>
               </button>
             </div>
-            <div class="text-xs font-mono text-slate-600 space-y-0.5">
-              <p>Lat: {{ restock.latitude.toFixed(6) }}</p>
-              <p>Lng: {{ restock.longitude.toFixed(6) }}</p>
-            </div>
+
           </div>
 
           <!-- Footer -->
@@ -311,10 +308,7 @@
 
             <!-- Footer -->
             <div class="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-              <div v-if="selectedLocation" class="text-xs font-mono text-slate-600">
-                <span class="font-bold text-slate-400 uppercase mr-2">Coordinates:</span>
-                {{ selectedLocation.latitude.toFixed(6) }}, {{ selectedLocation.longitude.toFixed(6) }}
-              </div>
+              <div></div>
               <a
                 v-if="selectedLocation"
                 :href="getGoogleMapsDirectUrl(selectedLocation.latitude, selectedLocation.longitude)"
