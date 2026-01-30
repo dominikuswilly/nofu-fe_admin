@@ -78,7 +78,7 @@
             <!-- Date Range Filter -->
             <div>
               <label class="text-xs font-bold text-slate-600 mb-2 block">Created At Range</label>
-              <div class="flex items-center space-x-2">
+              <div class="flex flex-col md:flex-row md:items-center gap-3 md:gap-2">
                 <div class="relative flex-1">
                    <input
                      v-model="filters.startDate"
@@ -87,7 +87,6 @@
                    />
                    <span class="absolute -top-1.5 left-2 bg-white px-1 text-[10px] font-bold text-slate-400">From</span>
                 </div>
-                <!-- <span class="text-slate-300 font-bold">→</span> -->
                 <div class="relative flex-1">
                    <input
                      v-model="filters.endDate"
