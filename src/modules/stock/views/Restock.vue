@@ -38,23 +38,46 @@
 
             <!-- Status Filter -->
             <div>
-              <label class="text-xs font-bold text-slate-600 mb-2 block">Status</label>
-              <select
-                v-model="filters.status"
-                class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-              >
-                <option value="">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="on delivery">On Delivery</option>
-                <option value="delivered">Delivered</option>
-              </select>
+              <label class="text-xs font-bold text-slate-600 mb-2 block">Status (Multiple)</label>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="status in statusOptions"
+                  :key="status.value"
+                  @click="toggleStatus(status.value)"
+                  :class="[
+                    'px-4 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 flex items-center space-x-2 border-2',
+                    filters.statuses.includes(status.value)
+                      ? getStatusActiveClass(status.value)
+                      : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                  ]"
+                >
+                  <span
+                    :class="[
+                      'w-2 h-2 rounded-full transition-all',
+                      filters.statuses.includes(status.value) ? 'bg-current' : 'bg-slate-300'
+                    ]"
+                  ></span>
+                  <span>{{ status.label }}</span>
+                  <svg
+                    v-if="filters.statuses.includes(status.value)"
+                    class="w-4 h-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
 
           <!-- Clear Filters -->
           <button
-            v-if="filters.merchantName || filters.status"
+            v-if="filters.merchantName || filters.statuses.length > 0"
             @click="clearFilters"
             class="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center space-x-1 transition-colors"
           >
@@ -73,7 +96,7 @@
           <div>
             <h4 class="text-slate-900 font-bold">No Records Found</h4>
             <p class="text-slate-400 text-xs max-w-[280px] mx-auto">
-              {{ filters.merchantName || filters.status ? 'Try adjusting your filters' : 'No restock requests available' }}
+              {{ filters.merchantName || filters.statuses.length > 0 ? 'Try adjusting your filters' : 'No restock requests available' }}
             </p>
           </div>
         </div>
@@ -120,13 +143,15 @@
                     </span>
                   </td>
                   <td class="px-6 py-4">
-                    <div class="flex items-start space-x-1">
-                      <MapPinIcon class="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
-                      <div class="text-xs">
-                        <p class="font-mono text-slate-600">{{ restock.latitude.toFixed(6) }}</p>
-                        <p class="font-mono text-slate-600">{{ restock.longitude.toFixed(6) }}</p>
-                      </div>
-                    </div>
+                    <button
+                      @click="openMapModal(restock)"
+                      class="p-2 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors group/map"
+                      title="View on Google Maps"
+                    >
+                      <svg class="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                      </svg>
+                    </button>
                   </td>
                   <td class="px-6 py-4">
                     <p class="text-sm font-medium text-slate-700">{{ restock.createdBy }}</p>
@@ -151,7 +176,7 @@
           <div>
             <h4 class="text-slate-900 font-bold">No Records Found</h4>
             <p class="text-slate-400 text-xs max-w-[280px] mx-auto">
-              {{ filters.merchantName || filters.status ? 'Try adjusting your filters' : 'No restock requests available' }}
+              {{ filters.merchantName || filters.statuses.length > 0 ? 'Try adjusting your filters' : 'No restock requests available' }}
             </p>
           </div>
         </div>
@@ -181,10 +206,21 @@
 
           <!-- Location -->
           <div class="border-t border-slate-100 pt-4">
-            <p class="text-xs font-bold text-slate-400 uppercase mb-2 flex items-center space-x-1">
-              <MapPinIcon class="w-3 h-3" />
-              <span>Location</span>
-            </p>
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-xs font-bold text-slate-400 uppercase flex items-center space-x-1">
+                <MapPinIcon class="w-3 h-3" />
+                <span>Location</span>
+              </p>
+              <button
+                @click="openMapModal(restock)"
+                class="p-2 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                title="View on Google Maps"
+              >
+                <svg class="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+              </button>
+            </div>
             <div class="text-xs font-mono text-slate-600 space-y-0.5">
               <p>Lat: {{ restock.latitude.toFixed(6) }}</p>
               <p>Lng: {{ restock.longitude.toFixed(6) }}</p>
@@ -206,6 +242,71 @@
         </div>
       </section>
     </div>
+
+    <!-- Map Modal -->
+    <Teleport to="body">
+      <Transition name="modal-fade">
+        <div v-if="isMapModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <!-- Backdrop -->
+          <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="closeMapModal"></div>
+          
+          <!-- Content -->
+          <div class="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden transform transition-all">
+            <!-- Header -->
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 class="text-xl font-black text-slate-900 flex items-center space-x-2">
+                  <svg class="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                  </svg>
+                  <span>Location Map</span>
+                </h3>
+                <p v-if="selectedLocation" class="text-xs text-slate-500 font-medium mt-1">
+                  {{ selectedLocation.merchantName }}
+                </p>
+              </div>
+              <button @click="closeMapModal" class="p-2 bg-slate-50 rounded-full text-slate-400 hover:text-slate-600 transition-colors">
+                <XMarkIcon class="w-6 h-6" />
+              </button>
+            </div>
+
+            <!-- Map Container -->
+            <div class="relative" style="height: 500px;">
+              <iframe
+                v-if="selectedLocation"
+                :src="getGoogleMapsEmbedUrl(selectedLocation.latitude, selectedLocation.longitude)"
+                width="100%"
+                height="100%"
+                style="border:0;"
+                :allowfullscreen="true"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </div>
+
+            <!-- Footer -->
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+              <div v-if="selectedLocation" class="text-xs font-mono text-slate-600">
+                <span class="font-bold text-slate-400 uppercase mr-2">Coordinates:</span>
+                {{ selectedLocation.latitude.toFixed(6) }}, {{ selectedLocation.longitude.toFixed(6) }}
+              </div>
+              <a
+                v-if="selectedLocation"
+                :href="getGoogleMapsDirectUrl(selectedLocation.latitude, selectedLocation.longitude)"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors flex items-center space-x-2"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+                <span>Open in Google Maps</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -219,6 +320,9 @@ import {
   MapPinIcon,
   ClipboardDocumentIcon
 } from '@heroicons/vue/24/outline';
+
+// Note: For production use, replace 'YOUR_GOOGLE_MAPS_API_KEY' with your actual API key
+const GOOGLE_MAPS_API_KEY = 'AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8'; // Replace with your key
 
 // Mock Data
 interface RestockRecord {
@@ -316,9 +420,21 @@ const mockRestocks = ref<RestockRecord[]>([
 ]);
 
 // Filters
+// Map Modal State
+const isMapModalOpen = ref(false);
+const selectedLocation = ref<RestockRecord | null>(null);
+
+// Status options for multi-select
+const statusOptions = [
+  { value: 'pending', label: 'Pending' },
+  { value: 'approved', label: 'Approved' },
+  { value: 'on delivery', label: 'On Delivery' },
+  { value: 'delivered', label: 'Delivered' }
+];
+
 const filters = ref({
   merchantName: '',
-  status: ''
+  statuses: [] as string[]
 });
 
 // Computed filtered restocks
@@ -327,8 +443,8 @@ const filteredRestocks = computed(() => {
     const matchesMerchant = !filters.value.merchantName || 
       restock.merchantName.toLowerCase().includes(filters.value.merchantName.toLowerCase());
     
-    const matchesStatus = !filters.value.status || 
-      restock.status === filters.value.status;
+    const matchesStatus = filters.value.statuses.length === 0 || 
+      filters.value.statuses.includes(restock.status);
     
     return matchesMerchant && matchesStatus;
   });
@@ -337,7 +453,7 @@ const filteredRestocks = computed(() => {
 // Helper functions
 const clearFilters = () => {
   filters.value.merchantName = '';
-  filters.value.status = '';
+  filters.value.statuses = [];
 };
 
 const getStatusClass = (status: string) => {
@@ -348,6 +464,25 @@ const getStatusClass = (status: string) => {
     'delivered': 'bg-green-100 text-green-700'
   };
   return classes[status] || 'bg-slate-100 text-slate-700';
+};
+
+const getStatusActiveClass = (status: string) => {
+  const classes: Record<string, string> = {
+    'pending': 'bg-amber-100 border-amber-300 text-amber-700 hover:bg-amber-200',
+    'approved': 'bg-blue-100 border-blue-300 text-blue-700 hover:bg-blue-200',
+    'on delivery': 'bg-purple-100 border-purple-300 text-purple-700 hover:bg-purple-200',
+    'delivered': 'bg-green-100 border-green-300 text-green-700 hover:bg-green-200'
+  };
+  return classes[status] || 'bg-slate-100 border-slate-300 text-slate-700';
+};
+
+const toggleStatus = (status: string) => {
+  const index = filters.value.statuses.indexOf(status);
+  if (index > -1) {
+    filters.value.statuses.splice(index, 1);
+  } else {
+    filters.value.statuses.push(status);
+  }
 };
 
 const formatRestockId = (id: string) => {
@@ -381,8 +516,49 @@ const copyToClipboard = async (text: string) => {
     console.error('Failed to copy:', err);
   }
 };
+
+const openMapModal = (restock: RestockRecord) => {
+  selectedLocation.value = restock;
+  isMapModalOpen.value = true;
+};
+
+const closeMapModal = () => {
+  isMapModalOpen.value = false;
+  setTimeout(() => {
+    selectedLocation.value = null;
+  }, 300); // Wait for transition to complete
+};
+
+const getGoogleMapsEmbedUrl = (lat: number, lng: number) => {
+  return `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_API_KEY}&q=${lat},${lng}&zoom=15`;
+};
+
+const getGoogleMapsDirectUrl = (lat: number, lng: number) => {
+  return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+};
 </script>
 
 <style scoped>
-/* Add any custom styles if needed */
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
+.modal-fade-enter-active > div:last-child,
+.modal-fade-leave-active > div:last-child {
+  transition: transform 0.3s ease;
+}
+
+.modal-fade-enter-from > div:last-child {
+  transform: scale(0.95);
+}
+
+.modal-fade-leave-to > div:last-child {
+  transform: scale(0.95);
+}
 </style>
