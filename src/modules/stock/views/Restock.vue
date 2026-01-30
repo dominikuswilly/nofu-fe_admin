@@ -21,7 +21,7 @@
             <h2 class="text-sm font-bold text-slate-800">Filter</h2>
           </div>
           
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <!-- Merchant Name Filter -->
             <div>
               <label class="text-xs font-bold text-slate-600 mb-2 block">Merchant Name</label>
@@ -73,11 +73,36 @@
                 </button>
               </div>
             </div>
+
+
+            <!-- Date Range Filter -->
+            <div>
+              <label class="text-xs font-bold text-slate-600 mb-2 block">Created At Range</label>
+              <div class="flex items-center space-x-2">
+                <div class="relative flex-1">
+                   <input
+                     v-model="filters.startDate"
+                     type="date"
+                     class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                   />
+                   <span class="absolute -top-1.5 left-2 bg-white px-1 text-[10px] font-bold text-slate-400">From</span>
+                </div>
+                <!-- <span class="text-slate-300 font-bold">→</span> -->
+                <div class="relative flex-1">
+                   <input
+                     v-model="filters.endDate"
+                     type="date"
+                     class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                   />
+                   <span class="absolute -top-1.5 left-2 bg-white px-1 text-[10px] font-bold text-slate-400">To</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Clear Filters -->
           <button
-            v-if="filters.merchantName || filters.statuses.length > 0"
+            v-if="filters.merchantName || filters.statuses.length > 0 || filters.startDate || filters.endDate"
             @click="clearFilters"
             class="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center space-x-1 transition-colors"
           >
@@ -96,7 +121,7 @@
           <div>
             <h4 class="text-slate-900 font-bold">No Records Found</h4>
             <p class="text-slate-400 text-xs max-w-[280px] mx-auto">
-              {{ filters.merchantName || filters.statuses.length > 0 ? 'Try adjusting your filters' : 'No restock requests available' }}
+              {{ filters.merchantName || filters.statuses.length > 0 || filters.startDate || filters.endDate ? 'Try adjusting your filters' : 'No restock requests available' }}
             </p>
           </div>
         </div>
@@ -176,7 +201,7 @@
           <div>
             <h4 class="text-slate-900 font-bold">No Records Found</h4>
             <p class="text-slate-400 text-xs max-w-[280px] mx-auto">
-              {{ filters.merchantName || filters.statuses.length > 0 ? 'Try adjusting your filters' : 'No restock requests available' }}
+              {{ filters.merchantName || filters.statuses.length > 0 || filters.startDate || filters.endDate ? 'Try adjusting your filters' : 'No restock requests available' }}
             </p>
           </div>
         </div>
@@ -434,7 +459,9 @@ const statusOptions = [
 
 const filters = ref({
   merchantName: '',
-  statuses: [] as string[]
+  statuses: [] as string[],
+  startDate: '',
+  endDate: ''
 });
 
 // Computed filtered restocks
@@ -446,7 +473,25 @@ const filteredRestocks = computed(() => {
     const matchesStatus = filters.value.statuses.length === 0 || 
       filters.value.statuses.includes(restock.status);
     
-    return matchesMerchant && matchesStatus;
+    // Date Filtering
+    let matchesDate = true;
+    if (filters.value.startDate || filters.value.endDate) {
+      const restockDate = new Date(restock.createdAt);
+      const start = filters.value.startDate ? new Date(filters.value.startDate) : null;
+      const end = filters.value.endDate ? new Date(filters.value.endDate) : null;
+      
+      if (start) {
+        start.setHours(0, 0, 0, 0); // Start of day
+        matchesDate = matchesDate && restockDate >= start;
+      }
+      
+      if (end) {
+        end.setHours(23, 59, 59, 999); // End of day
+        matchesDate = matchesDate && restockDate <= end;
+      }
+    }
+    
+    return matchesMerchant && matchesStatus && matchesDate;
   });
 });
 
@@ -454,6 +499,8 @@ const filteredRestocks = computed(() => {
 const clearFilters = () => {
   filters.value.merchantName = '';
   filters.value.statuses = [];
+  filters.value.startDate = '';
+  filters.value.endDate = '';
 };
 
 const getStatusClass = (status: string) => {
