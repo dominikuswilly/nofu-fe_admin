@@ -347,7 +347,7 @@ interface RestockRecord {
   id: string;
   merchantId: string;
   merchantName: string;
-  status: 'pending' | 'approved' | 'on delivery' | 'delivered';
+  status: 'pending' | 'approved' | 'on delivery' | 'delivered' | 'cancelled';
   latitude: number;
   longitude: number;
   createdBy: string;
@@ -447,7 +447,8 @@ const statusOptions = [
   { value: 'pending', label: 'Pending' },
   { value: 'approved', label: 'Approved' },
   { value: 'on delivery', label: 'On Delivery' },
-  { value: 'delivered', label: 'Delivered' }
+  { value: 'delivered', label: 'Delivered' },
+  { value: 'cancelled', label: 'Cancelled' }
 ];
 
 const filters = ref({
@@ -501,7 +502,8 @@ const getStatusClass = (status: string) => {
     'pending': 'bg-amber-100 text-amber-700',
     'approved': 'bg-blue-100 text-blue-700',
     'on delivery': 'bg-purple-100 text-purple-700',
-    'delivered': 'bg-green-100 text-green-700'
+    'delivered': 'bg-green-100 text-green-700',
+    'cancelled': 'bg-red-100 text-red-700'
   };
   return classes[status] || 'bg-slate-100 text-slate-700';
 };
@@ -511,7 +513,8 @@ const getStatusActiveClass = (status: string) => {
     'pending': 'bg-amber-100 border-amber-300 text-amber-700 hover:bg-amber-200',
     'approved': 'bg-blue-100 border-blue-300 text-blue-700 hover:bg-blue-200',
     'on delivery': 'bg-purple-100 border-purple-300 text-purple-700 hover:bg-purple-200',
-    'delivered': 'bg-green-100 border-green-300 text-green-700 hover:bg-green-200'
+    'delivered': 'bg-green-100 border-green-300 text-green-700 hover:bg-green-200',
+    'cancelled': 'bg-red-100 border-red-300 text-red-700 hover:bg-red-200'
   };
   return classes[status] || 'bg-slate-100 border-slate-300 text-slate-700';
 };
