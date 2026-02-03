@@ -136,6 +136,7 @@
                   <th class="px-6 py-4 text-left text-xs font-black text-slate-600 uppercase tracking-wider">Location</th>
                   <th class="px-6 py-4 text-left text-xs font-black text-slate-600 uppercase tracking-wider">Created By</th>
                   <th class="px-6 py-4 text-left text-xs font-black text-slate-600 uppercase tracking-wider">Created At</th>
+                  <th class="px-6 py-4 text-left text-xs font-black text-slate-600 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
@@ -183,6 +184,31 @@
                   <td class="px-6 py-4">
                     <p class="text-sm text-slate-600">{{ formatDate(restock.createdAt) }}</p>
                     <p class="text-xs text-slate-400">{{ formatTime(restock.createdAt) }}</p>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div v-if="restock.status === 'pending'" class="flex items-center space-x-2">
+                      <button
+                        @click="handleApprove(restock.id)"
+                        :disabled="isProcessing"
+                        class="px-3 py-1.5 bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white rounded-lg text-xs font-bold transition-colors flex items-center space-x-1"
+                      >
+                        <svg class="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                        <span>Approve</span>
+                      </button>
+                      <button
+                        @click="handleReject(restock.id)"
+                        :disabled="isProcessing"
+                        class="px-3 py-1.5 bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white rounded-lg text-xs font-bold transition-colors flex items-center space-x-1"
+                      >
+                        <svg class="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                        <span>Reject</span>
+                      </button>
+                    </div>
+                    <span v-else class="text-xs text-slate-400">-</span>
                   </td>
                 </tr>
               </tbody>
@@ -259,6 +285,30 @@
               <p class="text-slate-700 font-medium">{{ formatDate(restock.createdAt) }}</p>
               <p class="text-slate-500 text-xs">{{ formatTime(restock.createdAt) }}</p>
             </div>
+          </div>
+
+          <!-- Actions (Mobile) -->
+          <div v-if="restock.status === 'pending'" class="border-t border-slate-100 pt-4 flex items-center space-x-2">
+            <button
+              @click="handleApprove(restock.id)"
+              :disabled="isProcessing"
+              class="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white rounded-xl text-sm font-bold transition-colors flex items-center justify-center space-x-2"
+            >
+              <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+              <span>Approve</span>
+            </button>
+            <button
+              @click="handleReject(restock.id)"
+              :disabled="isProcessing"
+              class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white rounded-xl text-sm font-bold transition-colors flex items-center justify-center space-x-2"
+            >
+              <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+              <span>Reject</span>
+            </button>
           </div>
         </div>
       </section>
@@ -395,6 +445,58 @@ const restocks = computed<RestockRecord[]>(() => {
     updatedAt: req.updatedAt || ''
   }));
 });
+
+// Processing state for action buttons
+const isProcessing = ref(false);
+
+// Handler functions for approve/reject actions
+const handleApprove = async (id: string) => {
+  if (isProcessing.value) return;
+  
+  if (!confirm('Are you sure you want to approve this restock request?')) {
+    return;
+  }
+  
+  isProcessing.value = true;
+  try {
+    const success = await stockStore.approveRequest(id);
+    if (success) {
+      alert('Restock request approved successfully!');
+      await stockStore.fetchRestockRequests(); // Refresh data
+    } else {
+      alert('Failed to approve restock request. Please try again.');
+    }
+  } catch (error) {
+    console.error('Error approving request:', error);
+    alert('An error occurred while approving the request.');
+  } finally {
+    isProcessing.value = false;
+  }
+};
+
+const handleReject = async (id: string) => {
+  if (isProcessing.value) return;
+  
+  if (!confirm('Are you sure you want to reject this restock request?')) {
+    return;
+  }
+  
+  isProcessing.value = true;
+  try {
+    const success = await stockStore.rejectRequest(id);
+    if (success) {
+      alert('Restock request rejected successfully!');
+      await stockStore.fetchRestockRequests(); // Refresh data
+    } else {
+      alert('Failed to reject restock request. Please try again.');
+    }
+  } catch (error) {
+    console.error('Error rejecting request:', error);
+    alert('An error occurred while rejecting the request.');
+  } finally {
+    isProcessing.value = false;
+  }
+};
 
 // Filters
 // Map Modal State
