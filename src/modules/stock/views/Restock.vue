@@ -462,7 +462,7 @@ const handleApprove = async (id: string) => {
     const success = await stockStore.approveRequest(id);
     if (success) {
       alert('Restock request approved successfully!');
-      await stockStore.fetchRestockRequests(); // Refresh data
+      await stockStore.fetchAllRestockRequests(); // Refresh data
     } else {
       alert('Failed to approve restock request. Please try again.');
     }
@@ -486,7 +486,7 @@ const handleReject = async (id: string) => {
     const success = await stockStore.rejectRequest(id);
     if (success) {
       alert('Restock request rejected successfully!');
-      await stockStore.fetchRestockRequests(); // Refresh data
+      await stockStore.fetchAllRestockRequests(); // Refresh data
     } else {
       alert('Failed to reject restock request. Please try again.');
     }
