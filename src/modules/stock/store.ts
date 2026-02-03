@@ -47,6 +47,17 @@ export const useStockStore = defineStore('stocks', () => {
     }
   };
 
+  const fetchAllRestockRequests = async () => {
+    try {
+      const result = await httpClient.get<any>(`${API_CONFIG.transactionApi}/admin/restock`);
+      if (result.responseCode == "200" && Array.isArray(result.data)) {
+        requests.value = result.data;
+      }
+    } catch (error) {
+      console.error('Failed to fetch all restock requests:', error);
+    }
+  };
+
   const processRestockRequest = async (id: string, action: 'approve' | 'reject') => {
     try {
       const result = await httpClient.patch<any>(`${API_CONFIG.transactionApi}/admin/restock/${id}`, { action });
@@ -165,6 +176,7 @@ export const useStockStore = defineStore('stocks', () => {
     overview,
     fetchProducts,
     fetchRestockRequests,
+    fetchAllRestockRequests,
     approveRequest,
     rejectRequest,
     addProduct,

@@ -413,7 +413,7 @@ interface RestockRecord {
 
 // Fetch data on mount
 onMounted(async () => {
-  await stockStore.fetchRestockRequests();
+  await stockStore.fetchAllRestockRequests();
 });
 
 // Helper function to normalize status from API (uppercase) to UI (lowercase)
