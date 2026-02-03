@@ -31,7 +31,13 @@ export const useStockStore = defineStore('stocks', () => {
 
   const fetchRestockRequests = async () => {
     try {
-      const result = await httpClient.get<any>(`${API_CONFIG.transactionApi}/admin/restock`);
+      const today = new Date().toISOString().split('T')[0];
+      const result = await httpClient.get<any>(`${API_CONFIG.transactionApi}/admin/restock`, {
+        params: {
+          time_start: today as string,
+          time_end: today as string
+        }
+      });
       if (result.responseCode == "200" && Array.isArray(result.data)) {
         requests.value = result.data;
         overview.value.restockRequests = requests.value.filter(r => r.status === 'PENDING');
