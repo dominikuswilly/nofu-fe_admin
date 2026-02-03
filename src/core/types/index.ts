@@ -40,6 +40,7 @@ export interface RestockResponse {
 export interface RestockRequest {
   id: string;
   merchantId: string;
+  merchantUsername?: string;
   merchantName?: string;
   qty?: number | string;
   status: string;

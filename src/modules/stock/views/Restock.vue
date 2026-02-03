@@ -329,7 +329,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import {
   FunnelIcon,
   MagnifyingGlassIcon,
@@ -338,104 +338,63 @@ import {
   MapPinIcon,
   ClipboardDocumentIcon
 } from '@heroicons/vue/24/outline';
+import { useStockStore } from '../store';
 
 // Note: For production use, replace 'YOUR_GOOGLE_MAPS_API_KEY' with your actual API key
 const GOOGLE_MAPS_API_KEY = 'AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8'; // Replace with your key
 
-// Mock Data
+// Initialize store
+const stockStore = useStockStore();
+
+// Data interface matching API response
 interface RestockRecord {
   id: string;
   merchantId: string;
+  merchantUsername: string;
   merchantName: string;
-  status: 'pending' | 'approved' | 'on delivery' | 'delivered' | 'cancelled';
+  status: 'pending' | 'approved' | 'rejected' | 'on delivery' | 'delivered' | 'cancelled';
   latitude: number;
   longitude: number;
   createdBy: string;
   createdAt: string;
+  updatedBy: string;
+  updatedAt: string;
 }
 
-const mockRestocks = ref<RestockRecord[]>([
-  {
-    id: 'RST-2026-001-A3F9',
-    merchantId: 'MCH-001',
-    merchantName: 'Warung Makan Bahagia',
-    status: 'pending',
-    latitude: -6.200000,
-    longitude: 106.816666,
-    createdBy: 'MCH-001',
-    createdAt: '2026-01-30T08:30:00+07:00'
-  },
-  {
-    id: 'RST-2026-002-B7E2',
-    merchantId: 'MCH-002',
-    merchantName: 'Toko Sumber Rezeki',
-    status: 'approved',
-    latitude: -6.175110,
-    longitude: 106.865039,
-    createdBy: 'MCH-002',
-    createdAt: '2026-01-30T07:15:00+07:00'
-  },
-  {
-    id: 'RST-2026-003-C4D1',
-    merchantId: 'MCH-003',
-    merchantName: 'Kedai Kopi Nusantara',
-    status: 'on delivery',
-    latitude: -6.914744,
-    longitude: 107.609810,
-    createdBy: 'MCH-003',
-    createdAt: '2026-01-29T16:45:00+07:00'
-  },
-  {
-    id: 'RST-2026-004-E8F5',
-    merchantId: 'MCH-004',
-    merchantName: 'Minimarket Sejahtera',
-    status: 'delivered',
-    latitude: -7.250445,
-    longitude: 112.768845,
-    createdBy: 'MCH-004',
-    createdAt: '2026-01-29T10:20:00+07:00'
-  },
-  {
-    id: 'RST-2026-005-F2A8',
-    merchantId: 'MCH-005',
-    merchantName: 'Warung Pak Budi',
-    status: 'pending',
-    latitude: -6.208763,
-    longitude: 106.845599,
-    createdBy: 'MCH-005',
-    createdAt: '2026-01-30T06:00:00+07:00'
-  },
-  {
-    id: 'RST-2026-006-G9B3',
-    merchantId: 'MCH-006',
-    merchantName: 'Toko Berkah Jaya',
-    status: 'approved',
-    latitude: -6.121435,
-    longitude: 106.774124,
-    createdBy: 'MCH-006',
-    createdAt: '2026-01-29T14:30:00+07:00'
-  },
-  {
-    id: 'RST-2026-007-H1C7',
-    merchantId: 'MCH-007',
-    merchantName: 'Kedai Roti Manis',
-    status: 'on delivery',
-    latitude: -6.302100,
-    longitude: 106.897400,
-    createdBy: 'MCH-007',
-    createdAt: '2026-01-28T18:00:00+07:00'
-  },
-  {
-    id: 'RST-2026-008-J5K2',
-    merchantId: 'MCH-001',
-    merchantName: 'Warung Makan Bahagia',
-    status: 'delivered',
-    latitude: -6.200000,
-    longitude: 106.816666,
-    createdBy: 'MCH-001',
-    createdAt: '2026-01-28T09:15:00+07:00'
-  }
-]);
+// Fetch data on mount
+onMounted(async () => {
+  await stockStore.fetchRestockRequests();
+});
+
+// Helper function to normalize status from API (uppercase) to UI (lowercase)
+const normalizeStatus = (status: string): 'pending' | 'approved' | 'rejected' | 'on delivery' | 'delivered' | 'cancelled' => {
+  const statusMap: Record<string, 'pending' | 'approved' | 'rejected' | 'on delivery' | 'delivered' | 'cancelled'> = {
+    'PENDING': 'pending',
+    'APPROVED': 'approved',
+    'REJECTED': 'rejected',
+    'ON DELIVERY': 'on delivery',
+    'DELIVERED': 'delivered',
+    'CANCELLED': 'cancelled'
+  };
+  return statusMap[status.toUpperCase()] || 'pending';
+};
+
+// Computed property to get restocks from store and map to UI format
+const restocks = computed<RestockRecord[]>(() => {
+  return stockStore.requests.map(req => ({
+    id: req.id,
+    merchantId: req.merchantId,
+    merchantUsername: req.merchantName || '',
+    merchantName: req.merchantName || 'Unknown Merchant',
+    status: normalizeStatus(req.status),
+    latitude: req.latitude || 0,
+    longitude: req.longitude || 0,
+    createdBy: req.createdBy || '',
+    createdAt: req.createdAt,
+    updatedBy: req.updatedBy || '',
+    updatedAt: req.updatedAt || ''
+  }));
+});
 
 // Filters
 // Map Modal State
@@ -446,6 +405,7 @@ const selectedLocation = ref<RestockRecord | null>(null);
 const statusOptions = [
   { value: 'pending', label: 'Pending' },
   { value: 'approved', label: 'Approved' },
+  { value: 'rejected', label: 'Rejected' },
   { value: 'on delivery', label: 'On Delivery' },
   { value: 'delivered', label: 'Delivered' },
   { value: 'cancelled', label: 'Cancelled' }
@@ -460,7 +420,7 @@ const filters = ref({
 
 // Computed filtered restocks
 const filteredRestocks = computed(() => {
-  return mockRestocks.value.filter(restock => {
+  return restocks.value.filter(restock => {
     const matchesMerchant = !filters.value.merchantName || 
       restock.merchantName.toLowerCase().includes(filters.value.merchantName.toLowerCase());
     
@@ -501,6 +461,7 @@ const getStatusClass = (status: string) => {
   const classes: Record<string, string> = {
     'pending': 'bg-amber-100 text-amber-700',
     'approved': 'bg-blue-100 text-blue-700',
+    'rejected': 'bg-orange-100 text-orange-700',
     'on delivery': 'bg-purple-100 text-purple-700',
     'delivered': 'bg-green-100 text-green-700',
     'cancelled': 'bg-red-100 text-red-700'
@@ -512,6 +473,7 @@ const getStatusActiveClass = (status: string) => {
   const classes: Record<string, string> = {
     'pending': 'bg-amber-100 border-amber-300 text-amber-700 hover:bg-amber-200',
     'approved': 'bg-blue-100 border-blue-300 text-blue-700 hover:bg-blue-200',
+    'rejected': 'bg-orange-100 border-orange-300 text-orange-700 hover:bg-orange-200',
     'on delivery': 'bg-purple-100 border-purple-300 text-purple-700 hover:bg-purple-200',
     'delivered': 'bg-green-100 border-green-300 text-green-700 hover:bg-green-200',
     'cancelled': 'bg-red-100 border-red-300 text-red-700 hover:bg-red-200'
