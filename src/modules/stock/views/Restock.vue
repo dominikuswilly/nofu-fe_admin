@@ -313,17 +313,46 @@
         </div>
       </section>
 
+
       <!-- Pagination Controls -->
-      <section v-if="totalItems > 0" class="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-        <div class="flex items-center text-xs text-slate-500 font-medium">
-          Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, totalItems) }} of {{ totalItems }} results
+      <section v-if="totalItems > 0" class="flex flex-col md:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+        <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
+          <div class="flex items-center text-xs text-slate-500 font-medium whitespace-nowrap">
+            Showing {{ (currentPage - 1) * itemsPerPage + 1 }} - {{ Math.min(currentPage * itemsPerPage, totalItems) }} of {{ totalItems }}
+          </div>
+          
+          <div class="flex items-center gap-2">
+            <label class="text-xs text-slate-500 font-medium whitespace-nowrap">Per page:</label>
+            <select
+              v-model="itemsPerPage"
+              @change="handleLimitChange"
+              class="text-xs border-slate-200 rounded-lg py-1 pl-2 pr-6 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option :value="10">10</option>
+              <option :value="20">20</option>
+              <option :value="50">50</option>
+              <option :value="100">100</option>
+            </select>
+          </div>
         </div>
         
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center space-x-1">
+          <!-- First Page -->
+          <button
+            @click="handlePageChange(1)"
+            :disabled="currentPage === 1"
+            class="p-2 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all hidden sm:block"
+            title="First Page"
+          >
+            <ChevronDoubleLeftIcon class="w-4 h-4" />
+          </button>
+
+          <!-- Previous Page -->
           <button
             @click="handlePageChange(currentPage - 1)"
             :disabled="currentPage === 1"
             class="p-2 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            title="Previous Page"
           >
             <ChevronLeftIcon class="w-4 h-4" />
           </button>
@@ -346,12 +375,24 @@
             </template>
           </div>
 
+          <!-- Next Page -->
           <button
             @click="handlePageChange(currentPage + 1)"
             :disabled="currentPage === totalPages"
             class="p-2 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            title="Next Page"
           >
             <ChevronRightIcon class="w-4 h-4" />
+          </button>
+
+          <!-- Last Page -->
+          <button
+            @click="handlePageChange(totalPages)"
+            :disabled="currentPage === totalPages"
+            class="p-2 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all hidden sm:block"
+            title="Last Page"
+          >
+            <ChevronDoubleRightIcon class="w-4 h-4" />
           </button>
         </div>
       </section>
@@ -431,7 +472,9 @@ import {
   MapPinIcon,
   ClipboardDocumentIcon,
   ChevronLeftIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  ChevronDoubleLeftIcon,
+  ChevronDoubleRightIcon
 } from '@heroicons/vue/24/outline';
 import { useStockStore } from '../store';
 import { useRoute, useRouter } from 'vue-router';
@@ -508,6 +551,11 @@ watch([() => filters.value.startDate, () => filters.value.endDate], () => {
 const handlePageChange = (newPage: number) => {
   if (newPage < 1 || newPage > totalPages.value) return;
   currentPage.value = newPage;
+  fetchData();
+};
+
+const handleLimitChange = () => {
+  currentPage.value = 1; // Reset to page 1 on limit change
   fetchData();
 };
 
