@@ -10,7 +10,7 @@
           </div>
           <div class="bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
             <span class="text-xs font-bold text-slate-400 uppercase">Total Records</span>
-            <p class="text-lg font-black text-slate-900">{{ filteredRestocks.length }}</p>
+            <p class="text-lg font-black text-slate-900">{{ totalItems }}</p>
           </div>
         </div>
 
@@ -312,6 +312,49 @@
           </div>
         </div>
       </section>
+
+      <!-- Pagination Controls -->
+      <section v-if="totalItems > 0" class="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+        <div class="flex items-center text-xs text-slate-500 font-medium">
+          Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, totalItems) }} of {{ totalItems }} results
+        </div>
+        
+        <div class="flex items-center space-x-2">
+          <button
+            @click="handlePageChange(currentPage - 1)"
+            :disabled="currentPage === 1"
+            class="p-2 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            <ChevronLeftIcon class="w-4 h-4" />
+          </button>
+          
+          <div class="flex items-center space-x-1 hidden sm:flex">
+            <template v-for="page in totalPages" :key="page">
+              <button
+                v-if="totalPages <= 7 || Math.abs(page - currentPage) <= 1 || page === 1 || page === totalPages"
+                @click="handlePageChange(page)"
+                :class="[
+                  'w-8 h-8 rounded-lg text-xs font-bold transition-all flex items-center justify-center',
+                  currentPage === page
+                    ? 'bg-slate-900 text-white shadow-md'
+                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                ]"
+              >
+                {{ page }}
+              </button>
+              <span v-else-if="Math.abs(page - currentPage) === 2" class="text-xs text-slate-400 font-bold px-1">...</span>
+            </template>
+          </div>
+
+          <button
+            @click="handlePageChange(currentPage + 1)"
+            :disabled="currentPage === totalPages"
+            class="p-2 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            <ChevronRightIcon class="w-4 h-4" />
+          </button>
+        </div>
+      </section>
     </div>
 
     <!-- Map Modal -->
@@ -386,15 +429,26 @@ import {
   XMarkIcon,
   InboxIcon,
   MapPinIcon,
-  ClipboardDocumentIcon
+  ClipboardDocumentIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon
 } from '@heroicons/vue/24/outline';
 import { useStockStore } from '../store';
+import { useRoute, useRouter } from 'vue-router';
 
 // Note: For production use, replace 'YOUR_GOOGLE_MAPS_API_KEY' with your actual API key
 const GOOGLE_MAPS_API_KEY = 'AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8'; // Replace with your key
 
-// Initialize store
+// Initialize store and router
 const stockStore = useStockStore();
+const route = useRoute();
+const router = useRouter();
+
+// Pagination State
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const totalItems = computed(() => stockStore.totalRestockItems || stockStore.requests.length);
+const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value));
 
 // Data interface matching API response
 interface RestockRecord {
@@ -411,10 +465,51 @@ interface RestockRecord {
   updatedAt: string;
 }
 
+// Fetch data
+const fetchData = async () => {
+  // Update URL
+  router.push({
+    query: {
+      ...route.query,
+      page: currentPage.value,
+      limit: itemsPerPage.value,
+      time_start: filters.value.startDate,
+      time_end: filters.value.endDate
+    }
+  });
+
+  await stockStore.fetchAllRestockRequests({
+    page: currentPage.value,
+    limit: itemsPerPage.value,
+    startDate: filters.value.startDate,
+    endDate: filters.value.endDate
+  });
+};
+
 // Fetch data on mount
 onMounted(async () => {
-  await stockStore.fetchAllRestockRequests();
+  // Read params from URL
+  if (route.query.page) currentPage.value = Number(route.query.page);
+  if (route.query.limit) itemsPerPage.value = Number(route.query.limit);
+  if (route.query.time_start) filters.value.startDate = route.query.time_start as string;
+  if (route.query.time_end) filters.value.endDate = route.query.time_end as string;
+
+  await fetchData();
 });
+
+// Watch triggers
+import { watch } from 'vue';
+
+watch([() => filters.value.startDate, () => filters.value.endDate], () => {
+  currentPage.value = 1; // Reset to page 1 on date filter change
+  fetchData();
+});
+
+const handlePageChange = (newPage: number) => {
+  if (newPage < 1 || newPage > totalPages.value) return;
+  currentPage.value = newPage;
+  fetchData();
+};
 
 // Helper function to normalize status from API (uppercase) to UI (lowercase)
 const normalizeStatus = (status: string): 'pending' | 'approved' | 'rejected' | 'on delivery' | 'delivered' | 'cancelled' => {

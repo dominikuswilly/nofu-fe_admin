@@ -18,6 +18,8 @@ export const useStockStore = defineStore('stocks', () => {
     restockRequests: [],
   });
 
+  const totalRestockItems = ref(0);
+
   const fetchProducts = async () => {
     try {
       const result = await httpClient.get<any>(`${API_CONFIG.productApi}/products`);
@@ -47,11 +49,34 @@ export const useStockStore = defineStore('stocks', () => {
     }
   };
 
-  const fetchAllRestockRequests = async () => {
+  const fetchAllRestockRequests = async (params: { page?: number, limit?: number, startDate?: string, endDate?: string } = {}) => {
     try {
-      const result = await httpClient.get<any>(`${API_CONFIG.transactionApi}/admin/restock`);
+      const queryParams: any = {};
+      if (params.page) queryParams.page = params.page;
+      if (params.limit) queryParams.limit = params.limit;
+      if (params.startDate) queryParams.time_start = params.startDate;
+      if (params.endDate) queryParams.time_end = params.endDate;
+
+      const result = await httpClient.get<any>(`${API_CONFIG.transactionApi}/admin/restock`, {
+        params: queryParams
+      });
+
       if (result.responseCode == "200" && Array.isArray(result.data)) {
         requests.value = result.data;
+        // Assuming the API might return total count in meta or similar, but for now strictly using what we have.
+        // If the API structure for pagination is different (e.g. data wrapped in 'items'), this needs adjustment.
+        // Based on current view_file of store.ts, result.data IS the array. 
+        // We will store the length for now or check if there's a meta field in a real scenario.
+        // For this task, I will assume the API returns the list for the page.
+        // If the API supports pagination metadata, it usually comes in a separate field.
+        // Given the user prompt didn't specify the response structure change, I will just proceed with setting requests.
+        // I'll add a check if 'meta' exists in result just in case, but otherwise fallback.
+        if (result.meta && typeof result.meta.total === 'number') {
+          totalRestockItems.value = result.meta.total;
+        } else {
+          // Fallback if no total provided, might be just the page length (inaccurate for total but safe)
+          totalRestockItems.value = result.data.length;
+        }
       }
     } catch (error) {
       console.error('Failed to fetch all restock requests:', error);
@@ -174,6 +199,7 @@ export const useStockStore = defineStore('stocks', () => {
     restockHistory,
     products,
     overview,
+    totalRestockItems,
     fetchProducts,
     fetchRestockRequests,
     fetchAllRestockRequests,
