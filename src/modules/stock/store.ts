@@ -59,7 +59,11 @@ export const useStockStore = defineStore('stocks', () => {
 
       if (params.status) {
         if (Array.isArray(params.status)) {
-          params.status.forEach(s => queryParams.append('status', s));
+          // Join array with comma for single query param (?status=a,b)
+          const statusString = params.status.join(',');
+          if (statusString) {
+            queryParams.append('status', statusString);
+          }
         } else {
           queryParams.append('status', params.status);
         }

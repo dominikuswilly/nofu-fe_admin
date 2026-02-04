@@ -99,15 +99,27 @@
             </div>
           </div>
 
-          <!-- Clear Filters -->
-          <button
-            v-if="filters.merchantName || filters.statuses.length > 0 || filters.startDate || filters.endDate"
-            @click="clearFilters"
-            class="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center space-x-1 transition-colors"
-          >
-            <XMarkIcon class="w-3 h-3" />
-            <span>Clear Filters</span>
-          </button>
+          <!-- Filter Action Buttons -->
+          <div class="flex items-center justify-end gap-3 mt-4 border-t border-slate-100 pt-4">
+             <!-- Clear Filters -->
+            <button
+              v-if="filters.merchantName || filters.statuses.length > 0 || filters.startDate || filters.endDate"
+              @click="clearFilters"
+              class="px-4 py-2 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-all flex items-center gap-2"
+            >
+              <XMarkIcon class="w-4 h-4" />
+              <span>Clear Filters</span>
+            </button>
+
+            <!-- Apply Filter -->
+            <button
+              @click="applyFilters"
+              class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-200 transition-all flex items-center gap-2"
+            >
+              <FunnelIcon class="w-4 h-4" />
+              <span>Filter</span>
+            </button>
+          </div>
         </div>
       </section>
 
@@ -530,7 +542,7 @@ const fetchData = async () => {
       limit: itemsPerPage.value,
       time_start: filters.value.startDate,
       time_end: filters.value.endDate,
-      status: filters.value.statuses.length ? filters.value.statuses : undefined
+      status: filters.value.statuses.length ? filters.value.statuses.join(',') : undefined
     }
   });
 
@@ -565,21 +577,16 @@ onMounted(async () => {
   if (route.query.time_start) filters.value.startDate = route.query.time_start as string;
   if (route.query.time_end) filters.value.endDate = route.query.time_end as string;
   if (route.query.status) {
-    filters.value.statuses = Array.isArray(route.query.status) 
-      ? (route.query.status as string[]) 
-      : [route.query.status as string];
+    const statusParam = route.query.status as string;
+    filters.value.statuses = statusParam.includes(',') 
+      ? statusParam.split(',') 
+      : [statusParam];
   }
 
   await fetchData();
 });
 
-// Watch triggers
-import { watch } from 'vue';
-
-watch([() => filters.value.startDate, () => filters.value.endDate], () => {
-  currentPage.value = 1; // Reset to page 1 on filter changes
-  fetchData();
-});
+// Watchers removed for manual filtering
 
 const handlePageChange = (newPage: number) => {
   if (newPage < 1 || newPage > totalPages.value) return;
@@ -755,6 +762,9 @@ const toggleStatus = (status: string) => {
   } else {
     filters.value.statuses.push(status);
   }
+};
+
+const applyFilters = () => {
   currentPage.value = 1;
   fetchData();
 };
