@@ -313,9 +313,20 @@
         </div>
       </section>
 
+      <!-- Load More (Mobile) -->
+      <section class="lg:hidden flex justify-center mt-4">
+        <button
+          v-if="currentPage < totalPages"
+          @click="loadMore"
+          :disabled="isProcessing"
+          class="w-full bg-white border border-slate-200 text-slate-600 font-bold py-3 rounded-xl shadow-sm hover:bg-slate-50 transition-colors"
+        >
+          Load More
+        </button>
+      </section>
 
-      <!-- Pagination Controls -->
-      <section v-if="totalItems > 0" class="flex flex-col md:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+      <!-- Pagination Controls (Desktop) -->
+      <section v-if="totalItems > 0" class="hidden lg:flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
         <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
           <div class="flex items-center text-xs text-slate-500 font-medium whitespace-nowrap">
             Showing {{ (currentPage - 1) * itemsPerPage + 1 }} - {{ Math.min(currentPage * itemsPerPage, totalItems) }} of {{ totalItems }}
@@ -328,6 +339,7 @@
               @change="handleLimitChange"
               class="text-xs border-slate-200 rounded-lg py-1 pl-2 pr-6 focus:ring-blue-500 focus:border-blue-500"
             >
+              <option :value="5">5</option>
               <option :value="10">10</option>
               <option :value="20">20</option>
               <option :value="50">50</option>
@@ -489,7 +501,7 @@ const router = useRouter();
 
 // Pagination State
 const currentPage = ref(1);
-const itemsPerPage = ref(10);
+const itemsPerPage = ref(5);
 const totalItems = computed(() => stockStore.totalRestockItems || stockStore.requests.length);
 const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value));
 
@@ -526,6 +538,19 @@ const fetchData = async () => {
     limit: itemsPerPage.value,
     startDate: filters.value.startDate,
     endDate: filters.value.endDate
+  });
+};
+
+const loadMore = async () => {
+  if (currentPage.value >= totalPages.value) return;
+  currentPage.value++;
+  
+  await stockStore.fetchAllRestockRequests({
+    page: currentPage.value,
+    limit: itemsPerPage.value,
+    startDate: filters.value.startDate,
+    endDate: filters.value.endDate,
+    append: true
   });
 };
 

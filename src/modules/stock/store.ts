@@ -49,7 +49,7 @@ export const useStockStore = defineStore('stocks', () => {
     }
   };
 
-  const fetchAllRestockRequests = async (params: { page?: number, limit?: number, startDate?: string, endDate?: string } = {}) => {
+  const fetchAllRestockRequests = async (params: { page?: number, limit?: number, startDate?: string, endDate?: string, append?: boolean } = {}) => {
     try {
       const queryParams: any = {};
       if (params.page) queryParams.page = params.page;
@@ -62,7 +62,11 @@ export const useStockStore = defineStore('stocks', () => {
       });
 
       if (result.responseCode == "200" && Array.isArray(result.data)) {
-        requests.value = result.data;
+        if (params.append) {
+          requests.value = [...requests.value, ...result.data];
+        } else {
+          requests.value = result.data;
+        }
         // Assuming the API might return total count in meta or similar, but for now strictly using what we have.
         // If the API structure for pagination is different (e.g. data wrapped in 'items'), this needs adjustment.
         // Based on current view_file of store.ts, result.data IS the array. 
