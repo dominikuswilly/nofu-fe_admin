@@ -71,10 +71,9 @@ export const useStockStore = defineStore('stocks', () => {
         // If the API supports pagination metadata, it usually comes in a separate field.
         // Given the user prompt didn't specify the response structure change, I will just proceed with setting requests.
         // I'll add a check if 'meta' exists in result just in case, but otherwise fallback.
-        if (result.meta && typeof result.meta.total === 'number') {
-          totalRestockItems.value = result.meta.total;
+        if (result.meta) {
+          totalRestockItems.value = result.meta.totalRecord || result.meta.total || result.data.length;
         } else {
-          // Fallback if no total provided, might be just the page length (inaccurate for total but safe)
           totalRestockItems.value = result.data.length;
         }
       }
