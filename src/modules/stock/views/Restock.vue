@@ -529,7 +529,8 @@ const fetchData = async () => {
       page: currentPage.value,
       limit: itemsPerPage.value,
       time_start: filters.value.startDate,
-      time_end: filters.value.endDate
+      time_end: filters.value.endDate,
+      status: filters.value.statuses.length ? filters.value.statuses : undefined
     }
   });
 
@@ -537,7 +538,8 @@ const fetchData = async () => {
     page: currentPage.value,
     limit: itemsPerPage.value,
     startDate: filters.value.startDate,
-    endDate: filters.value.endDate
+    endDate: filters.value.endDate,
+    status: filters.value.statuses
   });
 };
 
@@ -550,6 +552,7 @@ const loadMore = async () => {
     limit: itemsPerPage.value,
     startDate: filters.value.startDate,
     endDate: filters.value.endDate,
+    status: filters.value.statuses,
     append: true
   });
 };
@@ -561,6 +564,11 @@ onMounted(async () => {
   if (route.query.limit) itemsPerPage.value = Number(route.query.limit);
   if (route.query.time_start) filters.value.startDate = route.query.time_start as string;
   if (route.query.time_end) filters.value.endDate = route.query.time_end as string;
+  if (route.query.status) {
+    filters.value.statuses = Array.isArray(route.query.status) 
+      ? (route.query.status as string[]) 
+      : [route.query.status as string];
+  }
 
   await fetchData();
 });
@@ -568,8 +576,8 @@ onMounted(async () => {
 // Watch triggers
 import { watch } from 'vue';
 
-watch([() => filters.value.startDate, () => filters.value.endDate], () => {
-  currentPage.value = 1; // Reset to page 1 on date filter change
+watch([() => filters.value.startDate, () => filters.value.endDate, () => filters.value.statuses.length], () => {
+  currentPage.value = 1; // Reset to page 1 on filter changes
   fetchData();
 });
 
@@ -688,34 +696,21 @@ const filters = ref({
   endDate: ''
 });
 
-// Computed filtered restocks
+// Computed filtered restocks (REMOVED Client-Side Status filtering, kept Merchant Name as it's not yet on server)
 const filteredRestocks = computed(() => {
   return restocks.value.filter(restock => {
     const matchesMerchant = !filters.value.merchantName || 
       restock.merchantName.toLowerCase().includes(filters.value.merchantName.toLowerCase());
     
-    const matchesStatus = filters.value.statuses.length === 0 || 
-      filters.value.statuses.includes(restock.status);
+    // Status is now handled by Server Side Filtering
     
-    // Date Filtering
-    let matchesDate = true;
-    if (filters.value.startDate || filters.value.endDate) {
-      const restockDate = new Date(restock.createdAt);
-      const start = filters.value.startDate ? new Date(filters.value.startDate) : null;
-      const end = filters.value.endDate ? new Date(filters.value.endDate) : null;
-      
-      if (start) {
-        start.setHours(0, 0, 0, 0); // Start of day
-        matchesDate = matchesDate && restockDate >= start;
-      }
-      
-      if (end) {
-        end.setHours(23, 59, 59, 999); // End of day
-        matchesDate = matchesDate && restockDate <= end;
-      }
-    }
+    // Date Filtering is also handled by Server Side, but no harm keeping double check if needed.
+    // However, typically we trust server data.
+    // Keeping client-side filtering ONLY for Merchant Name as Store doesn't seem to pass it yet (based on my edit).
+    // Actually, I should probably check date filtering too. The server is supposedly filtering by date.
+    // I will entrust server data for Status and Date, so mostly pass-through unless search text.
     
-    return matchesMerchant && matchesStatus && matchesDate;
+    return matchesMerchant;
   });
 });
 

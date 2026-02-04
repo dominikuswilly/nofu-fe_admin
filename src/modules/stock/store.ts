@@ -49,13 +49,14 @@ export const useStockStore = defineStore('stocks', () => {
     }
   };
 
-  const fetchAllRestockRequests = async (params: { page?: number, limit?: number, startDate?: string, endDate?: string, append?: boolean } = {}) => {
+  const fetchAllRestockRequests = async (params: { page?: number, limit?: number, startDate?: string, endDate?: string, append?: boolean, status?: string | string[] } = {}) => {
     try {
       const queryParams: any = {};
       if (params.page) queryParams.page = params.page;
       if (params.limit) queryParams.limit = params.limit;
       if (params.startDate) queryParams.time_start = params.startDate;
       if (params.endDate) queryParams.time_end = params.endDate;
+      if (params.status && params.status.length > 0) queryParams.status = params.status;
 
       const result = await httpClient.get<any>(`${API_CONFIG.transactionApi}/admin/restock`, {
         params: queryParams
