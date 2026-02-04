@@ -576,10 +576,10 @@ onMounted(async () => {
 // Watch triggers
 import { watch } from 'vue';
 
-watch([() => filters.value.startDate, () => filters.value.endDate, () => filters.value.statuses], () => {
+watch([() => filters.value.startDate, () => filters.value.endDate], () => {
   currentPage.value = 1; // Reset to page 1 on filter changes
   fetchData();
-}, { deep: true });
+});
 
 const handlePageChange = (newPage: number) => {
   if (newPage < 1 || newPage > totalPages.value) return;
@@ -720,6 +720,8 @@ const clearFilters = () => {
   filters.value.statuses = [];
   filters.value.startDate = '';
   filters.value.endDate = '';
+  currentPage.value = 1;
+  fetchData();
 };
 
 const getStatusClass = (status: string) => {
@@ -753,6 +755,8 @@ const toggleStatus = (status: string) => {
   } else {
     filters.value.statuses.push(status);
   }
+  currentPage.value = 1;
+  fetchData();
 };
 
 const formatRestockId = (id: string) => {

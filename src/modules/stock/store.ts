@@ -51,16 +51,24 @@ export const useStockStore = defineStore('stocks', () => {
 
   const fetchAllRestockRequests = async (params: { page?: number, limit?: number, startDate?: string, endDate?: string, append?: boolean, status?: string | string[] } = {}) => {
     try {
-      const queryParams: any = {};
-      if (params.page) queryParams.page = params.page;
-      if (params.limit) queryParams.limit = params.limit;
-      if (params.startDate) queryParams.time_start = params.startDate;
-      if (params.endDate) queryParams.time_end = params.endDate;
-      if (params.status && params.status.length > 0) queryParams.status = params.status;
+      const queryParams = new URLSearchParams();
+      if (params.page) queryParams.append('page', params.page.toString());
+      if (params.limit) queryParams.append('limit', params.limit.toString());
+      if (params.startDate) queryParams.append('time_start', params.startDate);
+      if (params.endDate) queryParams.append('time_end', params.endDate);
 
-      const result = await httpClient.get<any>(`${API_CONFIG.transactionApi}/admin/restock`, {
-        params: queryParams
-      });
+      if (params.status) {
+        if (Array.isArray(params.status)) {
+          params.status.forEach(s => queryParams.append('status', s));
+        } else {
+          queryParams.append('status', params.status);
+        }
+      }
+
+      const queryString = queryParams.toString();
+      const url = `${API_CONFIG.transactionApi}/admin/restock${queryString ? `?${queryString}` : ''}`;
+
+      const result = await httpClient.get<any>(url);
 
       if (result.responseCode == "200" && Array.isArray(result.data)) {
         if (params.append) {
