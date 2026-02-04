@@ -576,10 +576,10 @@ onMounted(async () => {
 // Watch triggers
 import { watch } from 'vue';
 
-watch([() => filters.value.startDate, () => filters.value.endDate, () => filters.value.statuses.length], () => {
+watch([() => filters.value.startDate, () => filters.value.endDate, () => filters.value.statuses], () => {
   currentPage.value = 1; // Reset to page 1 on filter changes
   fetchData();
-});
+}, { deep: true });
 
 const handlePageChange = (newPage: number) => {
   if (newPage < 1 || newPage > totalPages.value) return;
